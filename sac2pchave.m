@@ -9,9 +9,11 @@ function sac2pchave(filename)
 %
 % filename        The filename, full path included
 %
-% See PCHAVE and READSAC
+% Note:
 %
+% Requires repository slepian_oscar for PCHAVE and READSAC
 % 
+%
 % Last modified by pdabney@princeton.edu 12/10/2020
 
 plotornot=0; % does not plot the data through readsac
