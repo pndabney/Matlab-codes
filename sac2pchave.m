@@ -11,7 +11,7 @@ function sac2pchave(filename)
 %
 % Note:
 %
-% Requires slepian_oscar and slepian_alpha for routines PCHAVE and READSAC
+% Requires routines in slepian_oscar and slepian_alpha 
 % 
 %
 % Last modified by pdabney@princeton.edu 12/10/2020
