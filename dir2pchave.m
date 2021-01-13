@@ -10,7 +10,7 @@ function dir2pchave(direc)
 %
 % Note:
 %
-% Requires slepian_alpha for routines readsac and pchave
+% Requires routines in slepian_alpha and slepian_oscar 
 %
 % Last modified by pdabney@princeton.edu, 01/12/2021
 
