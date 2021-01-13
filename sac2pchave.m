@@ -11,7 +11,7 @@ function sac2pchave(filename)
 %
 % Note:
 %
-% Requires repository slepian_oscar for PCHAVE and READSAC
+% Requires slepian_oscar and slepian_alpha for routines PCHAVE and READSAC
 % 
 %
 % Last modified by pdabney@princeton.edu 12/10/2020
@@ -36,4 +36,4 @@ subplot(2,1,2);
 plot(F,10*log10(SD),'b-','LineW',1);
 axis tight; grid on; fig2print(gcf,'landscape')
 xlabel('Frequency (Hz)'); ylabel('Spectral Density (Energy/Hz)');
-sgtitle('Power Spectral Density Estimate')
+suptitle('Power Spectral Density Estimate')
