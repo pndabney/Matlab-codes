@@ -40,16 +40,17 @@ if ~isstr(a)
   l = N-1;
   A = a;
   B = [zeros(1,l),b,zeros(1,l)];
-  
   s = N+M-1;
-  norma = 0;
+
   % Compute cross correlation
   tic
+  norma = 0;
+  k=nan(1,s);
   for k = 1:s
     xc(k) = 0;
     switch meth
      case 1
-      for i = 1:min(length(A),length(B))
+      for i=1:min(length(A),length(B))
 	cc(i) = A(i)*B(i+k-1);
 	% Build the sum
 	xc(k) = xc(k) + cc(i);
@@ -60,7 +61,7 @@ if ~isstr(a)
       ii=1:min(length(A),length(B));
       cc = A(ii).*B(ii+k-1);
       % Build the sum
-      xc(k) = sum(cc(ii));
+      xc(k) = sum(cc);
       % Build the sum of squares
       norma = norma + cc*cc';
     end
@@ -76,22 +77,23 @@ if ~isstr(a)
   varns={xc,nxc,et};
   varargout=varns(1:nargout);
 elseif strcmp(a,'demo1')
-  TT=[10:100:1000];
+  TT=[1e3:1e4:5e4];
   for index=1:length(TT)
     t=1:3:TT(index);           
     a = 2*sin([4+rand]*pi*t+rand);
     b = 3*sin([3+pi]*pi*t/2 + 1/2+rand);
     [~,nxc1,wun(index)]=xcorrd(a,b,1);
     [~,nxc2,too(index)]=xcorrd(a,b,2);
+    diferm(nxc1,nxc2)
   end
   clf                
   plot(TT,wun,'LineWidth',2,'Color','r')
-  plot(TT,too,'LineWidth',2,'Color','b','LineStyle','--') 
-  grid on
   hold on
-  plot(TT,wun,'LineWidth',2,'Color','r')                 
+  plot(TT,too,'LineWidth',2,'Color','b','LineStyle','--') 
+  hold off
+  grid on
+  legend('method 1','method 2','location','northeast')
   xlabel('dimension')
   ylabel('elapsed time')
-  legend('method 1','method 2','location','northeast')
   longticks(gca)
 end
