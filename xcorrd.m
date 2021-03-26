@@ -1,7 +1,6 @@
 function varargout=xcorrd(a,b)
 % [xc,nxc]=XCORRD(a,b)
 %
-%
 % Cross-correlation of two time series 
 %
 %
@@ -23,8 +22,7 @@ function varargout=xcorrd(a,b)
 % b = 3*sin(3*pi*t/2 + 1/2);
 % [~,nxc]=xcorrd(a,b);
 %
-%
-% Last modified pdabney@princeton.edu, 2/9/21
+% Last modified pdabney@princeton.edu, 2/9/2021
 
 N = length(a);
 M = length(b);
