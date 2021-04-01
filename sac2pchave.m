@@ -1,18 +1,17 @@
-function varargout=sac2pchave(direc,fname,b,plot)
-% [F,SD]=SAC2PCHAVE(direc,fname,b)
+function varargout=sac2pchave(direc,b,plt)
+% [F,SD]=SAC2PCHAVE(direc,b,plt)
 % 
 % Reads SAC-formatted data and runs the program pchave to obtain
 % spectral density estimation plots
 %
 % INPUT:
 %
-% direc           Data directory, full path included
-% fname           Filename, do not include path
+% direc           SAC data directory storing the components of a seismogram, full path included
 % b               Seismogram component of interest: 
 %                 1 U-component
 %                 2 V-component
 %                 3 W-component [default]
-% plot            1 makes a plot
+% plt             1 makes a plot
 %                 0 does not make a plot [default]             
 %
 % OUTPUT:
@@ -28,13 +27,13 @@ function varargout=sac2pchave(direc,fname,b,plot)
 % 
 % Example:
 %
-% [F,SD]=sac2pchave(getenv('CEVENTS'),'S0105_sac',1,0)
+% [F,SD]=sac2pchave('/data2/InSight/common_events/S0185_sac/',1,0);
 %
 % Last modified by pdabney@princeton.edu, 3/27/21
 
 
 % Default
-defval('plot',0);
+defval('plt',0);
 defval('b',1);
 
 
@@ -43,14 +42,13 @@ dirp='~/Documents/MATLAB/PDFs';
 
 
 % Obtain and reformat the data
-files = fullfile(direc,fname);
-f = dir(files);
-f(1:2,:) = []; % remove first 2 rows
+files = dir(direc);
+files(1:2,:) = []; % remove first 2 rows
 
 % Read the SAC data
 plotornot=0; % to not plot data through READSAC
 osd = 'l'; resol = 0;
-[SeisData,HrData,~,~,tims]=readsac(fullfile(f(b).folder,f(b).name),...
+[SeisData,HrData,~,~,tims]=readsac(fullfile(files(b).folder,files(b).name),...
                                    plotornot,osd,resol);
 % Calculate PSD
 lwin=256; olap=70; nfft=256;
@@ -61,7 +59,7 @@ fs=mean(diff(tims));
 
 
 % Optional figure
-if plot == 1
+if plt == 1
     % plot of PSD
     figure()
     subplot(2,1,1);
