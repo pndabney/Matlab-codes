@@ -18,15 +18,22 @@ function varargout=joinseg(p,filename1,filename2,filename3)
 %
 % NOTE:
 %
-% Requires repository slepian_oscar
+% Requires repository slepian_oscar and slepian alpha
 %
-% See READSAC
+% See READSAC, DEFVAL
 %
 % EXAMPLE:
 %
+% (1)
 % filename1 = '/data2/InSight/all_deglitched/MPS_v1/corrected/sacfiles/XB.ELYSE.02.BHU.R.2019.073.203313.SAC';
 % filename2 = '/data2/InSight/all_deglitched/MPS_v1/corrected/sacfiles/XB.ELYSE.02.BHU.R.2019.073.212836.SAC';
 % [T,S]=joinseg(0,filename1,filename2);
+%
+% (2)
+% filename1 ='/data2/InSight/all_deglitched/MPS_v1/corrected/sacfiles/XB.ELYSE.02.BHU.R.2019.102.174424.SAC';
+% filename2 = '/data2/InSight/all_deglitched/MPS_v1/corrected/sacfiles/XB.ELYSE.02.BHU.R.2019.102.180000.SAC';
+% filename3 = '/data2/InSight/all_deglitched/MPS_v1/corrected/sacfiles/XB.ELYSE.02.BHU.R.2019.102.183912.SAC';
+% [T,S]=joinseg(0,filename1,filename2,filename3)
 %
 % Last modified by pdabney@princeton.edu, 03/27/21
 
@@ -72,15 +79,15 @@ switch nargin
          hold off;
          axis tight;
          xlabel('Time (s)');
-         title('Plot of Time Series Segments')
-         saveas(gcf,fullfile(dirp,'Seg_plot.pdf'));
+         title('Time Series Segments')
+         saveas(gcf,fullfile(dirp,sprintf('Seg%s_plot%d%d.pdf',h1.KSTNM,h1.NZJDAY,h1.NZYEAR)));
        
          figure()
          plot(T,S);
          axis tight;
          xlabel('Time (s)');
-         title('Plot New Time Series')
-         saveas(gcf,fullfile(dirp,'Append_plot.pdf'));
+         title('Appended Time Series')
+         saveas(gcf,fullfile(dirp,sprintf('Append%s_plot%d%d.pdf',h1.KSTNM,h1.NZJDAY,h1.NZYEAR))));
      else
      end
 
@@ -100,15 +107,15 @@ switch nargin
          hold off;
          axis tight;
          xlabel('Time (s)');
-         title('Plot of Time Series Segments');
-         saveas(gcf,fullfile(dirp,'Seg_plot.pdf'));
+         title('Time Series Segments');
+         saveas(gcf,fullfile(dirp,sprintf('Seg%s_plot%d%d.pdf',h1.KSTNM,h1.NZJDAY,h1.NZYEAR)));
          
          figure()
          plot(T,S);
          axis tight;
          xlabel('Time (s)');
-         title('Plot New Time Series');
-         saveas(gcf,fullfile(dirp,'Append_plot.pdf'));
+         title('Appended Time Series');
+         saveas(gcf,fullfile(dirp,sprintf('Append%s_plot%d%d.pdf',h1.KSTNM,h1.NZJDAY,h1.NZYEAR)));
      else 
      end 
    otherwise
