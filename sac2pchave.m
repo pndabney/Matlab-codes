@@ -1,16 +1,14 @@
-function varargout=sac2pchave(direc,b,plt)
-% [F,SD]=SAC2PCHAVE(direc,b,plt)
+function varargout=sac2pchave(fname,r,lwin,plt)
+% [F,SD]=SAC2PCHAVE(fname,r,lwin,plt)
 % 
 % Reads SAC-formatted data and runs the program pchave to obtain
 % spectral density estimation plots
 %
 % INPUT:
 %
-% direc           SAC data directory storing the components of a seismogram, full path included
-% b               Seismogram component of interest: 
-%                 1 U-component
-%                 2 V-component
-%                 3 W-component [default]
+% fname           Filename, full path included
+% r               Integer factor to decrease sampling rate by [default: 6]
+% lwin            Length of windowed segment, in samples, for pchave [default: 512]
 % plt             1 makes a plot
 %                 0 does not make a plot [default]             
 %
@@ -27,60 +25,56 @@ function varargout=sac2pchave(direc,b,plt)
 % 
 % Example:
 %
-% [F,SD]=sac2pchave('/data2/InSight/common_events/S0185_sac/',1,0);
+% fname='/home/pdabney/Documents/Esacfiles/sacfiles/EQ_ANMO/dfilter/vel_IU.ANMO.00.BHZ.2020.204.06.12.44.SAC';
+% [F,SD]=sac2pchave(fname,6,512,0);
 %
-% Last modified by pdabney@princeton.edu, 3/27/21
+% Last modified by pdabney@princeton.edu, 4/17/21
 
 
 % Default
 defval('plt',0);
 defval('b',1);
+defval('lwin',512);
+defval('r',6);
 
 
 % Where to put the plots
 dirp='~/Documents/MATLAB/PDFs';
 
 
-% Obtain and reformat the data
-files = dir(direc);
-files(1:2,:) = []; % remove first 2 rows
-
 % Read the SAC data
 plotornot=0; % to not plot data through READSAC
 osd = 'l'; resol = 0;
-[SeisData,HrData,~,~,tims]=readsac(fullfile(files(b).folder,files(b).name),...
-                                   plotornot,osd,resol);
-% Calculate PSD
-lwin=256; olap=70; nfft=256;
-dval='MAD'; winfun='hamming';
-fs=mean(diff(tims));
-[SD,F]=pchave(SeisData,lwin,olap,nfft,fs,dval,winfun);
+[SeisData,HrData,~,~,tims]=readsac(fname,plotornot,osd,resol);
 
+% Start date
+day = datestr(HrData.NZJDAY+1,'mm-dd'); % must add 1 to get the correct date
+date = join([string(HrData.NZYEAR),day],'-');
+
+% Decrease sampling rate by a factor of r
+[sdata,tim]=resamp(SeisData,tims,r);
+
+% Calculate PSD
+olap=70; dval='MAD'; winfun='hamming';
+[SD,F]=pchave(sdata,lwin,olap,lwin,1/HrData.DELTA,dval,winfun);
 
 
 % Optional figure
 if plt == 1
     % plot of PSD
     figure()
-    subplot(2,1,1);
-    plot(F, SD,'b-','LineW',1); axis tight; grid on
+    loglog(F, SD,'b-'); 
+    grid on;
+    ylim([1e4 1e11]);
     xlabel('Frequency (Hz)'); ylabel('Spectral Density (Energy/Hz)');
-
-    subplot(2,1,2);
-    plot(F, 10*log10(SD),'b-','LineW',1); axis tight; grid on
-    fig2print(gcf,'landscape')
-    xlabel('Frequency (Hz)'); ylabel('Spectral Density (Energy/Hz)');
-    suptitle('Power Spectral Density Estimate')
-    saveas(gcf,fullfile(dirp,'Pchave_splot.pdf'));
-else
+    fig2print(gcf,'landscape');
+    title('Power Spectral Density Estimate');
+    saveas(gcf,fullfile(dirp,sprintf('PSD%s_r%f.pdf',date,r)));
 end
+
 
 
 
 % Optional output
 varns={F,SD};
 varargout=varns(1:nargout);
-
-
-
-end
