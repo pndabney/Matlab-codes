@@ -34,7 +34,7 @@ defval('d','rgaps');
 
 if isstr(d) & d=='rgaps'
     ng = sort(randi([1 length(sd)],1,2*num));
-elseif isstr(d) & dist=='egaps'
+elseif isstr(d) & d=='egaps'
     % ensure t consists of integers
     ng = round(linspace(1,length(sd),2*num));
 end
