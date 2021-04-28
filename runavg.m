@@ -1,7 +1,7 @@
 function varargout=runavg(x,lwin)
 % [xout]=runavg(x,wind)
 %
-% Running average given fixed window length
+% Running average given fixed window length using a convolution
 %
 % Input:
 % 
@@ -21,10 +21,8 @@ if N < lwin
     warning('Window is longer than the signal')
 else
   wmat = ones(1,lwin);
-  xout = conv(x,wmat./lwin);
-  % Discard edges
-  xout(1) = [];
-  xout(end) = [];
+  % Only returns parts that are computed without zero-padded edges
+  xout = conv(x,wmat./lwin,'valid');
 end
 
 % Provide output
