@@ -12,7 +12,7 @@ function varargout=mgaps_m2(sd,num,d,p)
 %                  'egaps' evenly distributed gaps
 % p                1 makes a plot
 %                  0 does not make a plot (default)
-%
+% 
 % OUTPUT:
 %
 % C                Cell array of the remaining segments
@@ -39,12 +39,12 @@ elseif isstr(d) & d=='egaps'
     ng = round(linspace(1,length(sd),2*num));
 end
 % Reshape into pairs
-g= reshape(ng',2,[])';
+g= reshape(ng,2,[]);
 
 % Replace values in of ranges g pairs with NaN
 SData = sd;
 for k=1:num
-    SData(g(k,1):g(k,2))=NaN;
+    SData(g(1,k):g(2,k))=NaN;
 end
 
 % Save data in a cell array
@@ -68,7 +68,7 @@ if p == 1
     plot(SData);
     axis tight;
     xlabel('Time (s)');
-    title('Segmented Data');
+    title(sprintf('Percent Missing: %.2f',pmis));
 end
 
 
