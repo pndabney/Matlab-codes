@@ -58,7 +58,7 @@ C{num+1} = SData(ng(end)+1:length(sd));
    
 
 % Ensure segments are longer than 1
-for k = 1:length(C)-1
+for k = length(C):-1:1
     if length(C{k}) <= 1
         C(:,k)=[];
     end
