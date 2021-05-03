@@ -1,8 +1,8 @@
-function varargout=movingabsm(tsraw,tsfil,tlwin)
+function varargout=movingabsm(tsraw,tsfil,t,tlwin)
 % [newts,nt,dif]=movingabsm(tsraw,tsfil,t,lwin)
 %
 % Running absolute mean normalization. Computes the running average of the 
-% absolute value of a waveform in normalization time window of a fixed length. 
+% absolute value of a waveform in a  normalization time window of a fixed length. 
 % The weights are computed on waveform filtered in earthquake band and apply 
 % to raw data.
 %
@@ -16,10 +16,11 @@ function varargout=movingabsm(tsraw,tsfil,tlwin)
 % Output:
 %
 % newts            Normalized time series (not original length)        
-% tn               New time series (cut to the length of the normalized time series)
+% nt               New time series (cut to the length of the normalized time series)
 % dif              Number of samples removed
+% weight           Calculated weight
 %
-% Last modified by pdabney@princeton.edu, 4/28/21
+% Last modified by pdabney@princeton.edu, 5/3/21
 
 % Default values
 defavl('lwin', 256);
@@ -31,11 +32,11 @@ tsfil = tsfil(:);
 a = abs(tsfil);
 
 % Take the moving average
-mva = runavg(a,lwin);
+weight = runavg(a,lwin);
 
 % Method - clips the beginning and ends of the raw time series to ensure
 % the moving average array and raw time series array are the same length
-dif = length(tsraw)-length(mva);
+dif = length(tsraw)-length(weight);
 if rem(dif,2) == 0
     % remove the same number of samples at the beginning and end of the
     % time series
@@ -49,11 +50,11 @@ else
 end
 
 % Normalized time series
-newst = newraw./mva;
+newst = newraw./weight;
 
 
 % Provide output
-vars={newst,nt,dif};
+vars={newst,nt,dif,weight};
 varargout=vars(1:nargout);
 end
 
