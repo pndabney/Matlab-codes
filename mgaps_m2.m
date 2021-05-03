@@ -1,5 +1,5 @@
-function varargout=mgaps_m2(sd,num,d,p)
-% [C,pmis,SData]=MGAPS_M2(sd,num,d,p)
+function varargout=mgaps_m2(sd,num,d,thresh,p)
+% [C,pmis,SData]=MGAPS_M2(sd,num,d,thresh,p)
 %
 % Takes a time series and creates synthetic gaps
 %
@@ -7,6 +7,8 @@ function varargout=mgaps_m2(sd,num,d,p)
 %
 % sd               Seismic data array (1-D)
 % num              Number of gaps to create (default: 10)
+% thresh           Integer of the minimum length of a segment (default:1)
+%                  Segments shorter will be thrown out
 % d                Distribution of gaps
 %                  'rgaps' uniformly random distributed gaps (default)
 %                  'egaps' evenly distributed gaps
@@ -21,7 +23,7 @@ function varargout=mgaps_m2(sd,num,d,p)
 %
 % EXAMPLE:
 %
-% sd = rand(1028,1); num = randi(10); d = 'rgaps';
+% sd = rand(4028,1); num = randi(10); d = 'rgaps'; thresh = 256;
 % [C,pmis,~]=mgaps_m2(sd,num,d);
 %
 % Last modified by pdabney@princeton.edu 04/10/21
@@ -29,6 +31,7 @@ function varargout=mgaps_m2(sd,num,d,p)
 % Default values
 defval('p',0);
 defval('num',10);
+defval('thresh',1);
 defval('d','rgaps');
 
 
@@ -57,9 +60,9 @@ end
 C{num+1} = SData(ng(end)+1:length(sd));
    
 
-% Ensure segments are longer than 1
+% Ensure segments are longer than thresh
 for k = length(C):-1:1
-    if length(C{k}) <= 1
+    if length(C{k}) <= thresh
         C(:,k)=[];
     end
 end
