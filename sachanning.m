@@ -85,7 +85,7 @@ elseif N == floor(L/2)
 end
 
 % Optional Output
-vars={ts,N}
+vars={ts,N};
 varargout=vars(1:nargout);
 
 end
