@@ -95,7 +95,6 @@ elseif q == 1
     % Clean
     system('rm -f h.sac');
     
-    quit
 end
 
 
