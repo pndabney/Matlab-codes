@@ -1,7 +1,7 @@
 function varargout=identifypeaks(x,y,freqs,thresh,ptype,units)
 % [pks,locs,width,prom,nfreqs,ipks,P1]=IDENTIFYPEAKS(x,y,freqs,thresh,ptype)
 %
-% Identify peaks in  data that meet a specified threshold
+% Identify and plot peaks given a specified threshold.
 %
 % Input:
 %
@@ -30,19 +30,6 @@ function varargout=identifypeaks(x,y,freqs,thresh,ptype,units)
 %
 % In the frequency range of 0.2-1.0 mHz (0S2 0T2 2S1 0S3 0T3 0S4 1S2 0T4 0S0 0S5 1S3 3S1 2S2)
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995
-%
-% [seisdata,Hdr,~,~,t]=readsac('~/Documents/Esacfiles/sacfiles/sumatra/vstim/velp_IU.ANMO.00.BHZ.2004.361.20.58.52.9d.SAC',0,'l',0);
-% lwin=length(seisdata)/1.5; olap=70; nfft=lwin; Fs=1./Hdr.DELTA;
-% [SD,F,Ulog,Llog,Ulin,Llin,Snon,Qnon,Qrob,Qchi]=pchave(seisdata,lwin,olap,nfft,Fs);
-% 
-% T=readtable('/home/pdabney/Documents/MATLAB/gitrepo/Insight/masterswidmer.txt');
-% T(1,:)=[]; T.freq_prem = str2double(T.freq_prem); T.freq_obs = str2double(T.freq_obs);  
-% T.uncertainty = str2double(T.uncertainty);                                 
-%
-% freqs = T.freq_obs*1e-6; % Hz 
-% freqs(isnan(freqs))=[];
-%
-% [pks,locs,width,prom,nfreqs,ipks,P1]=identifypeaks(F,SD,freqs,2.5e7,2,1);
 %
 % Last modified by pdabney@princeton.edu, 6/29/21
 
