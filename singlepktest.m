@@ -1,33 +1,37 @@
 function varargout=singlepktest(x,y,Hdr,freq,ptype,Ubnd,Lbnd,lwin,olap)
-% []=singlepktest(x,y,Hdr,ptype,Ubnd,Lbnd,lwin,olap)
+% [p,l,T,N,Nwin,dt,olap]=singlepktest(x,y,Hdr,ptype,Ubnd,Lbnd,lwin,olap)
 %
-% Isolates a single peak and observe the variation of the peak when 
-% changing the input parameters.
+% Creates a spectral density estimate plot including confidence intervals, focused 
+% on one frequency of interest.
 %
 % Input:
 %
-% x
-% y
-% Hdr              Header struct
-% freq             Mode frequency of interest
-% ptype            0 regular plot
-%                  1 x axis log plot [default]
-%                  2 y axis log plot
-%                  3 loglog plot
-% Ubnd             Upper bound
-% Lbnd             Lower bound
-% olap             Percent overlap
+% y              Data (1-D)
+% x              Corresponding x-axis data (1-D)
+% Hdr            Header struct
+% freq           Mode frequency of interest
+% ptype          0 regular plot
+%                1 log scale on x-axis [default]
+%                2 log scale on y-axis
+%                3 log-log scale plot
+% Ubnd           Upper confidence limit
+% Lbnd           Lower confidence limit
+% olap           Percent overlap
 %
 %
 % Output:
 %
-% p
-% l
-% T
-% N
-% Nwin
-% dt
-% olap
+% p             Axis handles to the lines plotted
+%               1 the spectral density, as a line
+%               2 the lower uncertainty interval
+%               3 the bound uncertainty interval
+%               4 the first set of 10 points of the spectral density
+% l             Vertical line plot at the mode frequency of interest
+% T             Duration (hr)
+% N             Window Length (hr)
+% Nwin          Number of windows
+% dt            Sampling period (s)
+% olap          Percent overlap
 %
 % Note:
 %
