@@ -1,4 +1,4 @@
-function varargout=fitgauss(y,x,freq,fdist,thresh)
+function varargout=fitgauss(y,x,freq,fdist,thresh,plotornot)
 % [X,Y,cfit,e,res]=fitguass(y,x,freq,fdist,thresh)
 %
 % Fit gaussian distribution curve to single peak of interest.
@@ -10,6 +10,8 @@ function varargout=fitgauss(y,x,freq,fdist,thresh)
 % freqs          Vector containing mode frequencies of interest
 % fdist          Distance (in frequency) for window of interest
 % thresh         Minimum height difference between a peak and its neighbors
+% plotornot      0 does not plot 
+%                1 plot
 %
 % Output:
 %
@@ -52,14 +54,18 @@ res = output.residuals;
 % Root mean square error
 e = gof.rmse;
 
-% Create figure
-figure(clf);
-plot(X,Y,'ok'); hold on
-plot(cfit,'r'); hold off
-xlim([X(1) X(end)])
-ylabel('Spectral Density (Energy/Hz)')
-xlabel('Frequency (Hz)')
-legend({'Spectral Density','Best Fit Gaussian'})
+% Optional Figure
+if plotornot == 1
+    figure(clf);
+    plot(X,Y,'ok'); hold on
+    plot(cfit,'r'); hold off
+    xlim([X(1) X(end)])
+    ylabel('Spectral Density (Energy/Hz)')
+    xlabel('Frequency (Hz)')
+    legend({'Spectral Density','Best Fit Gaussian'})
+elseif plotornot == 0
+    % Do not plot
+end
 
 % Optional Output
 vars={X,Y,cfit,e,res};
