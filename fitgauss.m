@@ -1,5 +1,5 @@
-function varargout=fitgauss(y,x,freq,fdist,thresh,plotornot)
-% [X,Y,cfit,e,res]=fitguass(y,x,freq,fdist,thresh)
+function varargout=fitgauss(y,x,freq,frange,thresh,plotornot)
+% [X,Y,cfit,gof,e,res]=fitguass(y,x,freq,frange,thresh,plotornot)
 %
 % Fit gaussian distribution curve to single peak of interest.
 %
@@ -8,7 +8,7 @@ function varargout=fitgauss(y,x,freq,fdist,thresh,plotornot)
 % y              Data (1-D)
 % x              Corresponding x-axis data (1-D)
 % freqs          Vector containing mode frequencies of interest
-% fdist          Distance (in frequency) for window of interest
+% frange         Vector containing frequency range of interest
 % thresh         Minimum height difference between a peak and its neighbors
 % plotornot      0 does not plot 
 %                1 plot
@@ -28,18 +28,15 @@ function varargout=fitgauss(y,x,freq,fdist,thresh,plotornot)
 % lwin = round(N/2); olap = 70;
 % [SD,F,Ulog,Llog,Ulin,Llin,Snon,Qnon,Qrob,Qchi]=pchave(y,lwin,olap,lwin,Fs);
 % freq = 120; fdist = 50; 
-% [X,Y,cfit,e,res]=fitgauss(SD,F,freq,fdist,0.1)
+% [X,Y,cfit,gof,e,res]=fitgauss(SD,F,freq,fdist,0.1,0);
 %
-% Last modified by pdabney@princeton.edu, 7/9/21
+% Last modified by pdabney@princeton.edu, 7/13/21
 
-
-% Determine indexes for frequency range of interest
-frange = find(x >= freq-fdist & x <= freq+fdist);
 
 X = x(frange);
 Y = y(frange);
-[pks,locs,wdt,prom]=findpeaks(Y,X,'Threshold',thresh,'WidthReference','halfheight');
-% Only obtain 1 peak
+[pks,locs,wdt,~]=findpeaks(Y,X,'Threshold',thresh,'WidthReference','halfheight');
+% Ensure there is only one peak
 if length(pks) > 1
     error('Must obtain a single peak')
 end
@@ -68,7 +65,7 @@ elseif plotornot == 0
 end
 
 % Optional Output
-vars={X,Y,cfit,e,res};
+vars={X,Y,cfit,gof,e,res};
 varargout=vars(1:nargout);
 
 end
