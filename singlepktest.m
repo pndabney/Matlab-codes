@@ -10,7 +10,7 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,p
 % fname          Filename, full path included
 % freq           Mode frequency of interest
 % fwd            Frequency window distance from the center (half the full length of the window)
-% olap           Percent overlap
+% olap           Percent overlap [default: 70]
 % num            Number of segments for window length for pchave
 % ptype          0 regular plot
 %                1 log scale on x-axis [default]
@@ -49,18 +49,14 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,p
 %
 % fwd = 5e-5; freq = 8.1439e-04; olap = 70; num = 2; ptype = 2; thresh = 1e9; plotornot = 1; pgauss = 0;
 % fname = '~/Documents/Esacfiles/sacfiles/sumatra/vstim/velp_IU.ANMO.00.BHZ.2004.361.20.58.52.9d.SAC';
-% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot);
+% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,pgauss);
 %
 % Last modified by pdabney@princeton.edu, 7/15/21
 
 
 % Default values
 defval('ptype',2)
-defval('freq',8.1439e-04)
-defval('thresh',1e9)
 defval('olap',70)
-defval('fwd',5e-5)
-defval('num',2)
 defval('plotornot',1)
 defval('pgauss',0)
 
