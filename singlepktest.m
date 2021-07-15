@@ -1,5 +1,6 @@
-function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot)
-% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,olap,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot)
+function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,pgauss)
+% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,olap,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,...
+% thresh,plotornot,pgauss)
 %
 % Creates a spectral density estimate plot including confidence intervals, focused 
 % on one frequency of interest. 
@@ -16,9 +17,11 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot)
 %                2 log scale on y-axis
 %                3 log-log scale plot
 % thresh         Threshold, minimum peak height
-% plotornot      0 does not plot [default]
-%                1 creates a plot
-%
+% plotornot      0 does not plot 
+%                1 creates a plot [default]
+% pgauss         0 does not plot gauss distribution [default]
+%                1 plots gauss distribution, only if plotornot is 1
+% 
 % Output:
 %
 % p             Axis handles to the lines plotted
@@ -44,11 +47,11 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot)
 % 
 % Example:
 %
-% fwd = 5e-5; freq = 8.1439e-04; olap = 70; num = 2; ptype = 2; thresh = 1e9;
+% fwd = 5e-5; freq = 8.1439e-04; olap = 70; num = 2; ptype = 2; thresh = 1e9; plotornot = 1; pgauss = 0;
 % fname = '~/Documents/Esacfiles/sacfiles/sumatra/vstim/velp_IU.ANMO.00.BHZ.2004.361.20.58.52.9d.SAC';
-% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,olap,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh);
+% [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot);
 %
-% Last modified by pdabney@princeton.edu, 7/13/21
+% Last modified by pdabney@princeton.edu, 7/15/21
 
 
 % Default values
@@ -58,7 +61,8 @@ defval('thresh',1e9)
 defval('olap',70)
 defval('fwd',5e-5)
 defval('num',2)
-
+defval('plotornot',1)
+defval('pgauss',0)
 
 %----------------------------------------------------------------------------------
 % Bounds are specific to mode frequency 8.1439e-04, change limits for other frequencies
@@ -118,6 +122,8 @@ gaussfit.skewness = skw(2); gaussfit.kurtosis = kurt(2);
 
 %----------------------------------------------------------------------------------
 if plotornot == 1
+    % Get grey color for plot
+    grey = [127 127 127]./255;
     % Determine y axis limits
     if ptype == 0
         eylim = [min(Y)-ylbnd1 max(Y)+yubnd1];
@@ -134,59 +140,80 @@ if plotornot == 1
     % Create plot
     figure(gcf); clf
     if ptype == 0
-        p(3)=plot(F,Ulog); hold on
-        p(2)=plot(F,Llog);
-        p(1)=plot(F,SD,'LineWidth',2);
+        p(3)=plot(X,Ulog(frange),'k'); hold on
+        p(2)=plot(X,Llog(frange),'k');
+        patch([X; flipud(X)],[Llog(frange); flipud(Ulog(frange))],[0.8 0.8 0.8],'FaceAlpha',0.5)
+        p(1)=plot(X,Y,'Color',[0 0.447 0.741],'LineWidth',1);
         p(4)=plot(F(1:10),SD(1:10),'+');
         l(1)=plot([freq freq], eylim, 'k', 'LineWidth',0.1);
-        p(5)=plot(X,g,'--k', 'LineWidth',2);
+        if pgauss == 1
+            p(5)=plot(X,g,'r');
+            legend([p(1) p(5)],{'Spectral Density','Gaussian Distribution'})
+        else
+            legend([p(1)],{'Spectral Density'})
+        end
         hold off
         xlim([X(1) X(end)])
         ylim(eylim)
     elseif ptype == 1
-        p(3)=semilogx(F,Ulog); hold on
-        p(2)=semilogx(F,Llog);
-        p(1)=semilogx(F,SD,'LineWidth',2);
+        p(3)=semilogx(X,Ulog(frange)); hold on
+        p(2)=semilogx(X,Llog(frange));
+        patch([X; flipud(X)],[Llog(frange); flipud(Ulog(frange))],[0.8 0.8 0.8],'FaceAlpha',0.5)
+        p(1)=semilogx(X,Y,'Color',[0 0.447 0.741],'LineWidth',1);
         p(4)=semilogx(F(1:10),SD(1:10),'+');
         l(1)=plot([freq freq], eylim, 'k', 'LineWidth',0.1);
-        p(5)=semilogx(X,g,'--k', 'LineWidth',2);
+        if pgauss == 1
+            p(5)=semilogx(X,g,'r');
+            legend([p(1) p(5)],{'Spectral Density','Gaussian Distribution'})
+        else
+            legend([p(1)],{'Spectral Density'})
+        end
         hold off
         xlim([X(1) X(end)])
         ylim(eylim)
     elseif ptype == 2
-        p(3)=semilogy(F,Ulog); hold on
-        p(2)=semilogy(F,Llog);
-        p(1)=semilogy(F,SD,'LineWidth',2);
+        p(3)=semilogy(X,Ulog(frange)); hold on
+        p(2)=semilogy(X,Llog(frange));
+        patch([X; flipud(X)],[Llog(frange); flipud(Ulog(frange))],[0.8 0.8 0.8],'FaceAlpha',0.5)
+        p(1)=semilogy(X,Y,'Color',[0 0.447 0.741],'LineWidth',1);
         p(4)=semilogy(F(1:10),SD(1:10),'+');
         l(1)=plot([freq freq], eylim, 'k', 'LineWidth',0.1);
-        p(5)=semilogy(X,g,'--k', 'LineWidth',2);
+        if pgauss == 1
+            p(5)=semilogy(X,g,'r');
+            legend([p(1) p(5)],{'Spectral Density','Gaussian Distribution'})
+        else
+            legend([p(1)],{'Spectral Density'})
+        end
         hold off
         xlim([X(1) X(end)])
         ylim(eylim)
     elseif ptype == 3
-        p(3)=loglog(F,Ulog); hold on
-        p(2)=loglog(F,Llog);
-        p(1)=loglog(F,SD,'LineWidth',2);
+        p(3)=loglog(X,Ulog(frange),'--k'); hold on
+        p(2)=loglog(X,Llog(frange),'--k');
+        patch([X; flipud(X)],[Llog(frange); flipud(Ulog(frange))],[0.8 0.8 0.8],'FaceAlpha',0.5)
+        p(1)=loglog(X,Y,'Color',[0 0.447 0.741],'LineWidth',1);
         p(4)=loglog(F(1:10),SD(1:10),'+');
         l(1)=plot([freq freq], eylim, 'k', 'LineWidth',0.1);
-        p(5)=loglog(X,g,'--k', 'LineWidth',2);
+        if pgauss == 1
+            p(5)=loglog(X,g,'r');
+            legend([p(1) p(5)],{'Spectral Density','Gaussian Distribution'})
+        else
+            legend([p(1)],{'Spectral Density'})
+        end
         hold off
         xlim([X(1) X(end)])
         ylim(eylim)
     end
     grid on
-    legend([p(3) p(2) p(1) p(5)],{'Upper limit','Lower limit','Spectral Density','Gaussian Distribution'})
     xlabel('Frequency (mHz)')
     ylabel('Spectral Density (Energy/Hz)')
     title(sprintf('T = %.f, N = %.f, Nwin = %.f, olap = %.f, \n dt = %.f, taper = dpss, NW = 4 ',...
                   T,N,Nwin,olap,dt))
 
-
-
     % Optional Output
     vars={p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu};
     varargout=vars(1:nargout);
-else
+else   
     % Optional Output
     vars={g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu};
     varargout=vars(1:nargout);
