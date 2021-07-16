@@ -25,13 +25,15 @@ function varargout=examinepk(x,y,freq,frange,ptype,thresh)
 % locs           Location of peak (1 spectral density, 2 gaussian function) 
 % wdt            Full width of peak at the half maximum 
 %                (1 spectral density, 2 gaussian function)
+% Area           Area beneath the curve
+%                (1 spectral density, 2 gaussian function)
 % Ra             Ratio of the area of the LHS to the RHS
 % skw            Skewness, measure of asymmetry of the data 
 %                (1 spectral density, 2 gaussian function)
 % kurt           Kurtosis, measure of how outlier-prone a distribution 
 %                (1 spectral density, 2 gaussian function)
 % 
-% Last modified by pdabney@princeton.edu, 7/13/21
+% Last modified by pdabney@princeton.edu, 7/16/21
 
 
 % Compute Gaussian Distribution
@@ -54,6 +56,8 @@ pks=[pks1 pks2]; locs=[locs1 locs2]; wdt=[wdt1 wdt2]; prm=[prm1 prm2];
 mu = [mean(Y) mean(g)];
 sigma = [std(Y) std(g)];
 
+% Find Area
+Area = [trapz(X,Y) trapz(X,g)];
 
 % Determine how outlier prone the distribution is
 kurt = [kurtosis(Y) kurtosis(g)];
@@ -74,7 +78,7 @@ Ra = A1/A2;
 
 
 % Optional Output
-vars={X,Y,sigma,mu,g,pks,locs,wdt,prm,Ra,skw,kurt};
+vars={X,Y,sigma,mu,g,pks,locs,wdt,prm,Area,Ra,skw,kurt};
 varargout=vars(1:nargout);
 
 end
