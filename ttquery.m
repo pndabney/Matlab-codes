@@ -1,9 +1,7 @@
 function varargout=ttquery(rlat,rlon,elat,elon,edepth)
 % [query]=ttquery(rlat,rlon,elat,elon,edepth)
 %
-%
-% Creates a string in the format for an IRIS traveltime query
-%
+% Obtains a data table with P and S travel times from IRIS.
 %
 % INPUT:
 %
@@ -15,10 +13,9 @@ function varargout=ttquery(rlat,rlon,elat,elon,edepth)
 %
 % OUTPUT:
 %
-% query         String to copy and paste into address bar
+% data          Table with travel time data
 %
-%
-% Last modified by pdabney@princeton.edu, 01/26/21
+% Last modified by pdabney@princeton.edu, 07/19/21
 
 % Initialize constant substrings
 inital = 'http://service.iris.edu/irisws/traveltime/1/query?';
@@ -42,7 +39,12 @@ words = {begin,evloc,evdepth,phases,model};
 % Join all the substrings
 query = strjoin(words,'&');
 
+% Get travel time data from IRIS
+data = webread(query);
 
 % option for output
-varns={query};
+varns={data,query};
 varargout=varns(1:nargout);
+
+end
+
