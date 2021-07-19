@@ -1,5 +1,5 @@
 function varargout=ttquery(rlat,rlon,elat,elon,edepth)
-% [query]=ttquery(rlat,rlon,elat,elon,edepth)
+% [data]=ttquery(rlat,rlon,elat,elon,edepth)
 %
 % Obtains a data table with P and S travel times from IRIS.
 %
@@ -43,7 +43,7 @@ query = strjoin(words,'&');
 data = webread(query);
 
 % option for output
-varns={data,query};
+varns={data};
 varargout=varns(1:nargout);
 
 end
