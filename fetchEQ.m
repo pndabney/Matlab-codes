@@ -28,9 +28,14 @@ irisFetch.SACfiles(network,station,location,channel,startdate,enddate,direc);
 
 %--------------------------------------------------------------------------------------------------------------
 % Get the instrument response data from iris
+% Reformat start date and end date
+starttime = strrep(startdate,' ','T');
+endtime = strrep(enddate,' ','T');
+% Format url request
 ini_inresp = 'http://service.iris.edu/irisws/resp/1/query?';
-param_inresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&starttime=%s&endtime=%s',network,station,location,channel,startdate,enddate);
+param_inresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&starttime=%s&endtime=%s',network,station,location,channel,starttime,endtime);
 query_inresp = strcat(ini_inresp,param_inresp);
+% Obtain web content
 re = webread(query_inresp);
 
 % Create RESP file
@@ -40,9 +45,11 @@ fclose(fileID);
 
 %---------------------------------------------------------------------------------------------------------------
 % Evaluate evalresp to get amp and phase files
+% Format url request
 ini_eresp = 'http://service.iris.edu/irisws/evalresp/1/query?';
 param_eresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&time=%s&output=fap',network,station,location,channel,startdate);
 query_eresp = strcat(ini_eresp,param_eresp);
+% Obtain web content
 fap = webread(query_eresp);
 
 % Format the data to correspond with results from Evalresp
