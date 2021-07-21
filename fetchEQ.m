@@ -18,7 +18,7 @@ function varargout=fetchEQ(network,station,location,channel,startdate,enddate)
 % amp              Amplitude data produced from evalresp 
 % phase            Phase data produced from evalresp
 %
-% Last modified by pdabney@princeton.edu, 7/19/21
+% Last modified by pdabney@princeton.edu, 7/21/21
 
 % Directory to put the waveform and instrument response data
 direc = '/home/pdabney/Documents/ANMO/';
@@ -26,11 +26,12 @@ direc = '/home/pdabney/Documents/ANMO/';
 % Request waveform data and put in specified directory
 irisFetch.SACfiles(network,station,location,channel,startdate,enddate,direc);
 
-%--------------------------------------------------------------------------------------------------------------
-% Get the instrument response data from iris
-% Reformat start date and end date
+% Reformat start date and end date for Resp, amp, phase request
 starttime = strrep(startdate,' ','T');
 endtime = strrep(enddate,' ','T');
+
+%--------------------------------------------------------------------------------------------------------------
+% Get the instrument response data from iris
 % Format url request
 ini_inresp = 'http://service.iris.edu/irisws/resp/1/query?';
 param_inresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&starttime=%s&endtime=%s',network,station,location,channel,starttime,endtime);
@@ -47,7 +48,7 @@ fclose(fileID);
 % Evaluate evalresp to get amp and phase files
 % Format url request
 ini_eresp = 'http://service.iris.edu/irisws/evalresp/1/query?';
-param_eresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&time=%s&output=fap',network,station,location,channel,startdate);
+param_eresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&time=%s&output=fap',network,station,location,channel,starttime);
 query_eresp = strcat(ini_eresp,param_eresp);
 % Obtain web content
 fap = webread(query_eresp);
@@ -59,7 +60,7 @@ phase = [data{1} data{3}];
 
 %---------------------------------------------------------------------------------------------------------------
 % Optional Ouput
-vars={amp,phase}
+vars={amp,phase};
 varargout=vars(1:nargout);
 
 end
