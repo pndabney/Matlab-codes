@@ -1,8 +1,10 @@
-function varargout=fetchEQ(network,station,location,channel,startdate,enddate)
-% [amp,phase]=fetchEQ(network,station,location,channel,startdate,enddate)
+function fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxfreq,numfreq)
+% [direc]=fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxfreq,numfreq)
 %
 % Requests waveform and instrument response data from IRIS and saves the data in a directory.
-% Waveform data is in the format of a SAC file. Instrument response data is in the format of a RESP file. 
+% Waveform data is in the format of a SAC file and instrument response data is in the format of a RESP file. 
+% Then runs evalresp to obtain the AMP and PHASE files. This function requires that you already have
+% EVALRESP software (available at https://ds.iris.edu/ds/nodes/dmc/software/downloads/evalresp/)
 %
 % Input:
 % 
@@ -12,16 +14,15 @@ function varargout=fetchEQ(network,station,location,channel,startdate,enddate)
 % channel          Component of interest [e.g. 'BHZ']
 % startdate        Start date [format: 'yyyy-mm-dd hh:mm:ss']
 % enddate          End Date [format: 'yyyy-mm-dd hh:mm:ss']
+% minfreq          Minimum frequency for EVALRESP
+% maxfreq          Maximum frequency for EVALRESP
+% numfreq          Number of frequency for EVALRESP
 %
-% Output:
 %
-% amp              Amplitude data produced from evalresp 
-% phase            Phase data produced from evalresp
-%
-% Last modified by pdabney@princeton.edu, 7/21/21
+% Last modified by pdabney@princeton.edu, 7/22/21
 
 % Directory to put the waveform and instrument response data
-direc = '/home/pdabney/Documents/ANMO/';
+direc = '~/Documents/ANMO/';
 
 % Request waveform data and put in specified directory
 irisFetch.SACfiles(network,station,location,channel,startdate,enddate,direc);
@@ -40,28 +41,25 @@ query_inresp = strcat(ini_inresp,param_inresp);
 re = webread(query_inresp);
 
 % Create RESP file
-fileID = fopen(fullfile(direc,sprintf('RESP.%s.%s.%s.%s',network,station,location,channel)),'w');
+filename = sprintf('RESP.%s.%s.%s.%s',network,station,location,channel);
+fileID = fopen(fullfile(direc,filename),'w');
 fprintf(fileID,re);
 fclose(fileID);
 
 %---------------------------------------------------------------------------------------------------------------
 % Evaluate evalresp to get amp and phase files
-% Format url request
-ini_eresp = 'http://service.iris.edu/irisws/evalresp/1/query?';
-param_eresp = sprintf('net=%s&sta=%s&loc=%s&cha=%s&time=%s&output=fap',network,station,location,channel,starttime);
-query_eresp = strcat(ini_eresp,param_eresp);
-% Obtain web content
-fap = webread(query_eresp);
+% Extract the datetime for year and day
+date = datetime(extractBefore(startdate,' '));
 
-% Format the data to correspond with results from Evalresp
-data = textscan(fap,'%f %f %f');
-amp = [data{1} data{2}];
-phase = [data{1} data{3}];
+% Make command sequence
+% Go to specified location for the output then run EVALRESP
+tcom=sprintf('cd %s ; evalresp %s %s %g %g %g %g %g -f %s -u vel',...
+             direc,station,channel,year(startdate),day(date,'dayofyear'),minfreq,maxfreq,numfreq,filename);
+% Execute the command sequence
+system(sprintf('%s',tcom));
 
-%---------------------------------------------------------------------------------------------------------------
-% Optional Ouput
-vars={amp,phase};
+% optional output
+vars={direc};
 varargout=vars(1:nargout);
-
 end
 
