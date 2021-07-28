@@ -29,7 +29,7 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,p
 %               2 the lower uncertainty interval
 %               3 the bound uncertainty interval
 %               4 the first set of 10 points of the spectral density
-%               5 the gaussian distribution
+%               5 the gaussian distribution [optional output]
 % l             Vertical line plot at the mode frequency of interest
 % g             Fitted gaussian distribution curve
 % peakinfo      Structure array of information about the peak
@@ -48,10 +48,10 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,p
 % Example:
 %
 % fwd = 5e-5; freq = 8.1439e-04; olap = 70; num = 2; ptype = 2; thresh = 1e9; plotornot = 1; pgauss = 0;
-% fname = '~/Documents/Esacfiles/sacfiles/sumatra/vstim/velp_IU.ANMO.00.BHZ.2004.361.20.58.52.9d.SAC';
+% fname = '~/Documents/Esacfiles/sacfiles/sumatra/vstim/vel/vel_IU.ANMO.00.BHZ.2004.361.20.58.52.9d.SAC';
 % [p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu]=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,pgauss);
 %
-% Last modified by pdabney@princeton.edu, 7/15/21
+% Last modified by pdabney@princeton.edu, 7/28/21
 
 
 % Default values
@@ -103,17 +103,17 @@ Nwin = round(Hdr.NPTS/lwin);
 
 
 % Examine peak 
-[X,Y,sigma,mu,g,pks,locs,wdt,prm,Ra,skw,kurt]=examinepk(F,SD,omega,frange,ptype,thresh);
+[X,Y,sigma,mu,g,pks,locs,wdt,prm,Area,Ra,skw,kurt]=examinepk(F,SD,omega,frange,ptype,thresh);
 % Create struct for peak
-peakinfo.mean = mu(1); peakinfo.standard_deviation = sigma(1);
-peakinfo.height = pks(1); peakinfo.location = locs(1);
-peakinfo.width = wdt(1); peakinfo.prominence = prm(1);
-peakinfo.skewness = skw(1); peakinfo.kurtosis = kurt(1);
+peakinfo.Mean = mu(1); peakinfo.Standard_Deviation = sigma(1);
+peakinfo.Height = pks(1); peakinfo.Location = locs(1);
+peakinfo.Width = wdt(1); peakinfo.Prominence = prm(1);
+peakinfo.Area = Area(1); peakinfo.Skewness = skw(1); peakinfo.Kurtosis = kurt(1);
 % Create struct for gaussian distribution
-gaussfit.mean = mu(2); gaussfit.standard_deviation = sigma(2);
-gaussfit.height = pks(2); gaussfit.location = locs(2);
-gaussfit.width = wdt(2); gaussfit.prominence = prm(2);
-gaussfit.skewness = skw(2); gaussfit.kurtosis = kurt(2);
+gaussfit.Mean = mu(2); gaussfit.Standard_Deviation = sigma(2);
+gaussfit.Height = pks(2); gaussfit.Location = locs(2);
+gaussfit.Width = wdt(2); gaussfit.Prominence = prm(2);
+gaussfit.Area = Area(2); gaussfit.Skewness = skw(2); gaussfit.Kurtosis = kurt(2);
 
 
 %----------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ if plotornot == 1
     grid on
     xlabel('Frequency (mHz)')
     ylabel('Spectral Density (Energy/Hz)')
-    title(sprintf('T = %.f, N = %.f, Nwin = %.f, olap = %.f, \n dt = %.f, taper = dpss, NW = 4 ',...
+    title(sprintf('T = %.1f hrs, N = %.1f hrs, Nwin = %.f,\n olap = %.f, dt = %.1f s, taper = dpss, NW = 4 ',...
                   T,N,Nwin,olap,dt))
 
     % Optional Output
