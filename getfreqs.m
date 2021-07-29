@@ -74,21 +74,20 @@ data(ub,:)=[];
 % Separate mode labels and numerical data
 mlabel = string(data.Mode);
 tdata = [str2double(data.freq_obs) str2double(data.uncertainty) str2double(data.freq_prem)];
+% Convert to specified output units
+if strcmp(units,'hertz') == 1
+    tdata = tdata*chz;
+elseif strcmp(units,'millihertz') == 1
+    tdata = tdata*cmhz;
+elseif strcmp(units,'microhertz') == 1
+    % Do nothing
+end
 
 % Interested in only prem or observed modes
 if dset == 1
     freqs = tdata(:,1);
 elseif dset == 0
     freqs = tdata(:,3);
-end
-
-% Convert to specified output units
-if strcmp(units,'hertz') == 1
-    freqs = freqs*chz;
-elseif strcmp(units,'millihertz') == 1
-    freqs = freqs*cmhz;
-elseif strcmp(units,'microhertz') == 1
-    % Do nothing
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
