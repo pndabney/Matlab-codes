@@ -1,5 +1,5 @@
 function fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxfreq,numfreq)
-% [direc]=fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxfreq,numfreq)
+% fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxfreq,numfreq,direc)
 %
 % Requests waveform and instrument response data from IRIS and saves the data in a directory.
 % Waveform data is in the format of a SAC file and instrument response data is in the format of a RESP file. 
@@ -17,12 +17,9 @@ function fetchEQ(network,station,location,channel,startdate,enddate,minfreq,maxf
 % minfreq          Minimum frequency for EVALRESP
 % maxfreq          Maximum frequency for EVALRESP
 % numfreq          Number of frequency for EVALRESP
+% direc            Directory to put data
 %
-%
-% Last modified by pdabney@princeton.edu, 7/22/21
-
-% Directory to put the waveform and instrument response data
-direc = '~/Documents/ANMO/';
+% Last modified by pdabney@princeton.edu, 7/29/21
 
 % Request waveform data and put in specified directory
 irisFetch.SACfiles(network,station,location,channel,startdate,enddate,direc);
@@ -58,8 +55,5 @@ tcom=sprintf('cd %s ; evalresp %s %s %g %g %g %g %g -f %s -u vel',...
 % Execute the command sequence
 system(sprintf('%s',tcom));
 
-% optional output
-vars={direc};
-varargout=vars(1:nargout);
 end
 
