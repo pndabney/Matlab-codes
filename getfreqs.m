@@ -24,10 +24,12 @@ function varargout=getfreqs(frange,mtype,dset,units)
 % Data table from Free Oscillations: Frequencies and Attenuations by Masters and Widmer.
 % Requires repository slepian_alpha. See defval.
 %
-% Last modified by pdabney@princeton.edu, 7/29/21
+% Last modified by pdabney@princeton.edu, 7/30/21
 
 % Default values
 defval('dset',1)
+defval('mtype','spheriodal')
+defval('units','hertz')
 
 % Unit conversions
 % conversion to hertz
@@ -58,18 +60,18 @@ elseif strcmp(mtype,'both') == 1
     % Do nothing 
 end
 
-%-----------------------------------------------
+%------------------------------------------------------------------------------------------
 % Remove frequencies that are NOT observed
 rmf = find(string(data.freq_obs) == "");
 data(rmf,:)=[];
-%-----------------------------------------------
+%------------------------------------------------------------------------------------------
 
 % Remove data  outside frequency range of interest
 fobs = str2double(data.freq_obs);
-lb = find(fobs < frange(1));
-data(lb,:)=[];
 ub = find(fobs > frange(2));
 data(ub,:)=[];
+lb = find(fobs < frange(1));
+data(lb,:)=[];
 
 % Separate mode labels and numerical data
 mlabel = string(data.Mode);
@@ -90,7 +92,7 @@ elseif dset == 0
     freqs = tdata(:,3);
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Optional Output
 vars={freqs,mlabel,tdata};
