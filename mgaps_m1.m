@@ -61,8 +61,9 @@ end
 SData = sd;
 % Create gaps by replacing segments of data with NaN
 SData(matranges(ng))=NaN;
+nsd = find(~isnan(SData));
 % Create a cell array of the segmented data
-[C,K]=isincreasing(SData);
+[C,K]=isincreasing(nsd);
 
 % Optional threshold
 switch nargin
