@@ -1,11 +1,12 @@
-function varargout=mgaps_m1(sd,num,d,p,thresh)
-% [C,pmis,N,T,mu,SData]=MGAPS_M1(sd,num,d,p,thresh)
+function varargout=mgaps_m1(sd,tim,num,d,p,thresh)
+% [C,pmis,N,T,mu,SData]=MGAPS_M1(sd,tim,num,d,p,thresh)
 %
 % Takes a time series and creates synthetic gaps
 %
 % INPUT:
 %
 % sd               Seismic data array (1-D)
+% tim              Corresponding time axis
 % num              Number of gaps to create [default: 10]
 %                  (Note: if threshold is implemented, the number of gaps inputed 
 %                  may not be equal to the actual number of gaps created)
@@ -14,6 +15,7 @@ function varargout=mgaps_m1(sd,num,d,p,thresh)
 %                  'egaps' evenly distributed gaps
 % p                1 makes a plot
 %                  0 does not make a plot (default)
+% thresh           Optional threshold for minimum length of data segments
 % 
 % OUTPUT:
 %
@@ -30,10 +32,10 @@ function varargout=mgaps_m1(sd,num,d,p,thresh)
 %
 % EXAMPLE:
 %
-% sd = rand(4028,1); num = randi(10); d = 'rgaps';
-% [C,pmis,N,T,mu,SData]=mgaps_m1(sd,num,d,1);
+% sd = ones(1,2048); tim = 1:2048; num = randi(10); d = 'rgaps';
+% [C,pmis,N,T,mu,SData]=mgaps_m1(sd,tim,num,d,1);
 %
-% Last modified by pdabney@princeton.edu 08/16/21
+% Last modified by pdabney@princeton.edu 08/17/21
 
 % Default values
 defval('p',0);
@@ -60,7 +62,7 @@ SData = sd;
 % Create gaps by replacing segments of data with NaN
 SData(matranges(ng))=NaN;
 % Create a cell array of the segmented data
-[C,K]=isincrease(SData);
+[C,K]=isincreasing(SData);
 
 % Optional threshold
 switch nargin
@@ -87,10 +89,10 @@ mu = T/N;
 
 % Optional plot
 if p == 1
-    plot(SData);
-    axis tight;
+    plot(tim,SData);
+    xlim([tim(1) tim(end)])
     xlabel('Time (s)');
-    title(sprintf('p = %.2f s, T = %.2f s,\nmu = %.2f s, N = %.f ',pmis,T,mu,N));
+    title(sprintf('p = %.2f, T = %.2f s,\nmu = %.2f s, N = %.f ',pmis,T,mu,N));
 end
 
 % Optional output
