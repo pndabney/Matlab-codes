@@ -1,5 +1,5 @@
 function varargout=isincreasing(x)
-% [C,K]=isincrease(x)
+% [C,K]=isincreasing(x)
 %
 % Finds the index where the numbers are not monotomically increasing by 1
 %
@@ -14,11 +14,13 @@ function varargout=isincreasing(x)
 %
 % Last modified by pdabney@princeton.edu, 8/16/21
 
+K=[];
 % Create vector of lower bound indexes
 % --- should look into removing the for loops in the future ---
 for i = 1:length(x)-1
     if x(i)+1 ~= x(i+1)
-        K = find(x == x(i));
+        k = find(x == x(i));
+        K = [K; k];
      elseif x(i)+1 == x(i+1)
         % it is increasing by only 1
     end
