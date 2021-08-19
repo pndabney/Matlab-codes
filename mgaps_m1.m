@@ -1,5 +1,5 @@
-function varargout=mgaps_m1(sd,tim,num,d,p,thresh)
-% [C,pmis,N,T,mu,M,SData]=MGAPS_M1(sd,tim,num,d,p,thresh)
+function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
+% [C,pmis,N,T,mu,M,SData]=MGAPS_M1(sd,tim,dt,num,d,p,thresh)
 %
 % Takes a time series and creates synthetic gaps
 %
@@ -7,6 +7,7 @@ function varargout=mgaps_m1(sd,tim,num,d,p,thresh)
 %
 % sd               Seismic data array (1-D)
 % tim              Corresponding time axis
+% dt               Sampling rate (s)
 % num              Number of gaps to create [default: 10]
 %                  (Note: if threshold is implemented, the number of gaps inputed 
 %                  may not be equal to the actual number of gaps created)
@@ -35,7 +36,7 @@ function varargout=mgaps_m1(sd,tim,num,d,p,thresh)
 % EXAMPLE:
 %
 % sd = ones(1,2048); tim = 1:2048; num = randi(10); d = 'rgaps';
-% [C,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,num,d,1);
+% [C,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,1);
 %
 % Last modified by pdabney@princeton.edu 08/18/21
 
@@ -47,7 +48,7 @@ defval('d','rgaps');
 
 % Factor to multiply by for text position
 tpx = 0.75;
-tpy = 0.9;
+tpy = 0.80;
 
 % MAIN
 if isstr(d) & d=='rgaps'
@@ -91,10 +92,10 @@ pmis = ((length(sd)-sum(abs(~isnan(SData))))/length(sd)) * 100;
 N = length(ng)/2;
 % Max and min segment length
 clen = cellfun(@length,C);
-M = [min(clen) max(clen)];
+M = [min(clen) max(clen)]*dt;
 % Average length of data segments
 tol = find(~isnan(SData));
-T = length(tol);
+T = length(tol)*dt;
 mu = T/N;
 
 % Optional plot
@@ -105,7 +106,7 @@ if p == 1
     title(sprintf('Percent Missing: %.f',pmis))
     XL=xlim; YL=ylim;
     text(tpx*XL(2),tpy*YL(2),sprintf(...
-        'T=%.2f s, mu=%.2f s,\nmin=%.f s, max=%.f s, N=%.f',T,mu,M(1),M(2),N),...
+        'T=%.2f s, mu=%.2f s,\nmin=%.2f s, max=%.2f s,\ndt=%.2f, N=%.f',T,mu,M(1),M(2),dt,N),...
          'HorizontalAlignment','center');
 end
 
