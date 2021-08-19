@@ -5,7 +5,7 @@ function varargout=isincreasing(x)
 %
 % Input:
 %
-% x              Data array containing gaps (includes NaN)
+% x              Vector of data indexes 
 %
 % Output:
 %
@@ -16,7 +16,6 @@ function varargout=isincreasing(x)
 
 K=[];
 % Create vector of lower bound indexes
-% --- should look into removing the for loops in the future ---
 for i = 1:length(x)-1
     if x(i)+1 ~= x(i+1)
         k = find(x == x(i));
@@ -33,6 +32,7 @@ C{1} = x(1:K(1));
 C{length(K)} = x(K(end)+1:end);
 
 % Deal with the middle segments
+% --- should look into removing the for loops in the future ---
 for j = 2:length(K)-1
     C{j} = x(K(j)+1:K(j+1));
 end
