@@ -1,18 +1,19 @@
 function varargout=isincreasing(x)
 % [C,K]=isincreasing(x)
 %
-% Finds the index where the numbers are not monotomically increasing by 1
+% Finds the index where integers are not monotomically increasing by 1 
+% and divides sections into a cell
 %
 % Input:
 %
-% x              Vector of data indexes 
+% x              Vector of increasing integers 
 %
 % Output:
 %
-% C              Cell array of segments of data
-% K              Upper bound indexes of the data segments
+% C              Cell array of integer sequences which are increasing by 1
+% K              Upper bound indexes of the sections
 %
-% Last modified by pdabney@princeton.edu, 8/16/21
+% Last modified by pdabney@princeton.edu, 8/20/21
 
 K=[];
 % Create vector of lower bound indexes
