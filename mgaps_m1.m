@@ -1,5 +1,5 @@
 function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
-% [C,pmis,N,T,mu,M,SData]=MGAPS_M1(sd,tim,dt,num,d,p,thresh)
+% [CD,pmis,N,T,mu,M,SData]=MGAPS_M1(sd,tim,dt,num,d,p,thresh)
 %
 % Takes a time series and creates synthetic gaps
 %
@@ -20,7 +20,7 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 % 
 % OUTPUT:
 %
-% C                Cell array of the remaining segments
+% CD               Cell array of the remaining segments
 % pmis             Percentage of missing data
 % N                Number of gaps actually created
 % T                Total length of segmented data
@@ -35,10 +35,10 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 %
 % EXAMPLE:
 %
-% sd = ones(1,2048); tim = 1:2048; num = randi(10); d = 'rgaps';
-% [C,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,1);
+% sd = ones(1,2048); tim = 1:2048; dt=1;  num = randi(10); d = 'rgaps';
+% [CD,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,1);
 %
-% Last modified by pdabney@princeton.edu 08/18/21
+% Last modified by pdabney@princeton.edu 08/20/21
 
 % Default values
 defval('p',0);
@@ -47,7 +47,7 @@ defval('thresh',1);
 defval('d','rgaps');
 
 % Factor to multiply by for text position
-tpx = 0.75;
+tpx = 0.70;
 tpy = 0.80;
 
 % MAIN
@@ -67,36 +67,49 @@ elseif isstr(d) & d=='egaps'
 end
 
 % Create gaps by replacing segments of data with NaN
-SData = sd;
-SData(matranges(ng))=NaN;
+SData = sd; SData(matranges(ng))=NaN;
+% Find indexes of data
 nsd = find(~isnan(SData));
-% Create a cell array of the segmented data
+% Creates a cell array of the INDEXES of the data segments
 [C,K]=isincreasing(nsd);
 
 % Optional threshold
 switch nargin
-    case 5
-    % Ensure segments are longer than thresh
-    for k = length(C):-1:1
-        if length(C{k}) <= thresh
-            C(:,k)=[];
-        end
-    end
-    case 4
+    case 7
+      % Ensure segments are longer than thresh
+      clen=cellfun(@length,C);
+      K=find(clen < thresh);
+      C(K)=[];
+    case 6
       % do nothing
 end
+% Rerun code if cell array is empty
+if isempty(C) == 1
+    [CD,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,p,thresh);
+end
+
+%--------------------------------------------------------------
+% Create a cell array for each to be filled with the data of each section
+one = ones(1,length(SData));
+for i = 1:length(C)
+    one(C{i})=NaN;
+    CD{i} = sd(C{i});
+end
+% Update array used for plotting
+j = find(~isnan(one));
+SData(j)=NaN;
+%--------------------------------------------------------------
 
 % Calculate the percent of data missing
 pmis = ((length(sd)-sum(abs(~isnan(SData))))/length(sd)) * 100; 
-% Number of gaps
-N = length(ng)/2;
+% Number of segments
+N = length(CD);
 % Max and min segment length
-clen = cellfun(@length,C);
+clen = cellfun(@length,CD);
 M = [min(clen) max(clen)]*dt;
 % Average length of data segments
-tol = find(~isnan(SData));
-T = length(tol)*dt;
-mu = T/N;
+tol = sum(clen);
+T = tol*dt; mu = T/N;
 
 % Optional plot
 if p == 1
@@ -111,7 +124,7 @@ if p == 1
 end
 
 % Optional output
-varns={C,pmis,N,T,mu,M,SData};
+varns={CD,pmis,N,T,mu,M,SData};
 varargout=varns(1:nargout);
 end
 
