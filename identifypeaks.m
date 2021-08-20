@@ -31,7 +31,7 @@ function varargout=identifypeaks(x,y,freqs,frange,thresh,ptype,units)
 %
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
-% Last modified by pdabney@princeton.edu, 8/19/21
+% Last modified by pdabney@princeton.edu, 8/20/21
 
 % Default values
 defval('ptype',2)
@@ -52,15 +52,13 @@ x = x*ucon;
 % Convert frequency units
 freqs = freqs*ucon;
 % Distannce range around frequency of interest
-freqd = 9.5*1e-6*ucon;
-% Lower bound frequency adjustment
-freqb = 1e-5*ucon;
+freqd = 2.5*1e-5*ucon;
 
 % Adjust x and y limits to correspond with conversion
-exlim = frange*ucon; % Will need to make this an input range in the future
+exlim = frange*ucon;
 in = find(x >= exlim(1) & x <= exlim(2));
 % y limits for ptype=0,1
-p01ylim = [-5e8 max(y(in))+1e8];
+p01ylim = [min(y(in))-1e8 max(y(in))+1e8];
 % y limits for ptype=2,3
 p23ylim = [min(y(in))+5e4 max(y(in))+5e9];
 
@@ -68,19 +66,22 @@ p23ylim = [min(y(in))+5e4 max(y(in))+5e9];
 % Find peaks in the data
 [pks, locs, width, prom] = findpeaks(y,x,'MinPeakHeight',thresh); 
 freqrange = zeros(length(freqs),2);
-freqrange(:,1) = freqs + freqd;
-freqrange(:,2) = freqs - freqd;
+freqrange(:,1) = freqs - freqd;
+freqrange(:,2) = freqs + freqd;
 % Eliminate peaks that are not within a specified frequency range
 % Deal with the upperbound
-Ku=find(locs > freqrange(length(freqs),1));
+Ku=find(locs > freqrange(length(freqs),2));
 locs(Ku)=[]; pks(Ku)=[]; prom(Ku)=[]; width(Ku)=[];
 % Deal with the middle section
+% Make sure to not remove points if there is overlap in frequency range
 for j = 1:length(freqs)-1
-    Km = find(locs > freqrange(j,1) & locs < freqrange(j+1,2));
-    locs(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
+    if freqrange(j,2) < freqrange(j+1,1)
+        Km = find(locs > freqrange(j,2) & locs < freqrange(j+1,1));
+        locs(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
+    end
 end
-% Need to adjust the lower bound for this specific frequency range
-Kl=find(locs < freqrange(1,2) - freqb);
+% Deal with the lowerbound
+Kl=find(locs < freqrange(1,1));
 locs(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
 
 % Additional info
