@@ -52,7 +52,7 @@ x = x*ucon;
 % Convert frequency units
 freqs = freqs*ucon;
 % Distannce range around frequency of interest
-freqd = 2.5*1e-5*ucon;
+freqd = 5*1e-5*ucon;
 
 % Adjust x and y limits to correspond with conversion
 exlim = frange*ucon;
@@ -83,17 +83,21 @@ end
 % Deal with the lowerbound
 Kl=find(locs < freqrange(1,1));
 locs(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
-
-% Additional info
-% Peaks identified
-ipks = length(locs);
-% Number of frequencies 
-nfreqs = length(freqs);
-
 % If locs is empty, set locs to NaN for plotting purposes
 if isempty(locs) == 1
     locs=NaN;
 end
+
+% Additional info
+% Peaks identified
+if isnan(locs) == 1
+    ipks = 0;
+else
+    ipks = length(locs);
+end
+% Number of frequencies 
+nfreqs = length(freqs);
+
 %------------------------------------------------------------------------------------
 % Plot of mode frequencies in power spectrum
 f = figure('Units', 'centimeters', 'Position', [0.05, 2.8, 18, 16], 'PaperPositionMode','Auto');
@@ -127,6 +131,7 @@ elseif ptype == 3
     hold off;
     ylim(p23ylim)
 end
+title(sprintf('N=%.f',ipks));
 uistack(P1,'top');
 xlim(exlim)
 ax1.XGrid = 'off'; ax1.YGrid = 'on';
@@ -140,25 +145,25 @@ set(hx2,'Position',[0.15, .22, .8, .32]);
 if ptype == 0
     P2=plot(x,y,'LineWidth',2);
     hold on;
-    p2=plot([locs locs], p01ylim, 'k', 'LineWidth', 0.1);
+    p2=plot([locs'; locs'], p01ylim, 'k', 'LineWidth', 0.1);
     hold off;
     ylim(p01ylim)
 elseif ptype == 1
     P2=semilogx(x,y,'LineWidth',2);
     hold on;
-    p2=plot([locs locs], p01ylim, 'k', 'LineWidth', 0.1);
+    p2=plot([locs'; locs'], p01ylim, 'k', 'LineWidth', 0.1);
     hold off;
     ylim(p01ylim)
 elseif  ptype == 2
     P2=semilogy(x,y,'LineWidth',2);
     hold on;
-    p2=plot([locs locs], p23ylim, 'k', 'LineWidth', 0.1);
+    p2=plot([locs'; locs'], p23ylim, 'k', 'LineWidth', 0.1);
     hold off;
     ylim(p23ylim)
 elseif ptype == 3
     P2=loglog(x,y,'LineWidth',2);
     hold on;
-    p2=plot([locs locs], p23ylim, 'k', 'LineWidth', 0.1);
+    p2=plot([locs'; locs'], p23ylim, 'k', 'LineWidth', 0.1);
     hold off
     ylim(p23ylim)
 end
