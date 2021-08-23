@@ -31,7 +31,7 @@ function varargout=identifypeaks(x,y,freqs,frange,thresh,ptype,units)
 %
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
-% Last modified by pdabney@princeton.edu, 8/20/21
+% Last modified by pdabney@princeton.edu, 8/23/21
 
 % Default values
 defval('ptype',2)
@@ -90,6 +90,10 @@ ipks = length(locs);
 % Number of frequencies 
 nfreqs = length(freqs);
 
+% If locs is empty, set locs to NaN for plotting purposes
+if isempty(locs) == 1
+    locs=NaN;
+end
 %------------------------------------------------------------------------------------
 % Plot of mode frequencies in power spectrum
 f = figure('Units', 'centimeters', 'Position', [0.05, 2.8, 18, 16], 'PaperPositionMode','Auto');
