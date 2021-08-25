@@ -1,5 +1,5 @@
 function varargout=identifypeaks(x,y,freqs,frange,thresh,units,ptype)
-% [pks,locs,width,prom,nfreqs,ipks,P1]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units,ptype);
+% [pks,locs,width,prom,freqs,FREQ,err,P1]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units,ptype);
 %
 % Identifies and plots peaks given a specified threshold.
 %
@@ -26,23 +26,18 @@ function varargout=identifypeaks(x,y,freqs,frange,thresh,units,ptype)
 % locs           Location where peaks occur
 % width          Width of the peaks
 % prom           Prominence of the peaks
-% nfreqs         Number of mode frequencies
-% ipks           Number of identified peaks
+% freqs          Vector containing all mode frequencies in range of interest
+% FREQ           Mode frequencies likely identified
+% err            Vector containing the difference in observed versus known mode frequencies
 % P1             Seismic Data used for plots
 %
 % NOTE:
 %
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
-% Last modified by pdabney@princeton.edu, 8/23/21
+% Last modified by pdabney@princeton.edu, 8/25/21
 
-% Default values
-defval('ptype',2)
-defval('units',1)
-defval('thresh',1e6)
-defval('plotornot',1)
-
-% Unit Converison
+% CONVERT UNITS
 if units == 0
     ucon = 1;
 elseif units == 1
@@ -50,7 +45,6 @@ elseif units == 1
 elseif units == 2
     ucon = 1e6;
 end
-
 % Convert x data units
 x = x*ucon;
 % Convert frequency units
@@ -67,40 +61,46 @@ p01ylim = [min(y(in))-1e8 max(y(in))+1e8];
 p23ylim = [min(y(in))+5e4 max(y(in))+5e9];
 
 %-------------------------------------------------------------------------------------
-% Find peaks in the data
-[pks, locs, width, prom] = findpeaks(y,x,'MinPeakHeight',thresh); 
-freqrange = zeros(length(freqs),2);
-freqrange(:,1) = freqs - freqd;
-freqrange(:,2) = freqs + freqd;
-% Eliminate peaks that are not within a specified frequency range
+% FIND PEAK IN THE DATA
+[pks, LOCS, width, prom] = findpeaks(y,x,'MinPeakHeight',thresh); 
+%freqrange = zeros(length(freqs),2);
+%freqrange(:,1) = freqs - freqd;
+%freqrange(:,2) = freqs + freqd;
+
+% ELIMINATE PEAKS THAT ARE NOT WITHIN A SPECIFIED RANGE
 % Deal with the upperbound
-Ku=find(locs > freqrange(length(freqs),2));
-locs(Ku)=[]; pks(Ku)=[]; prom(Ku)=[]; width(Ku)=[];
+%Ku=find(LOCS > freqrange(length(freqs),2));
+%LOCS(Ku)=[]; pks(Ku)=[]; prom(Ku)=[]; width(Ku)=[];
 % Deal with the middle section
 % Make sure to not remove points if there is overlap in frequency range
-for j = 1:length(freqs)-1
-    if freqrange(j,2) < freqrange(j+1,1)
-        Km = find(locs > freqrange(j,2) & locs < freqrange(j+1,1));
-        locs(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
-    end
-end
+%for j = 1:length(freqs)-1
+%    if freqrange(j,2) < freqrange(j+1,1)
+%        Km = find(LOCS > freqrange(j,2) & LOCS < freqrange(j+1,1));
+%        LOCS(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
+%    end
+%end
 % Deal with the lowerbound
-Kl=find(locs < freqrange(1,1));
-locs(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
+%Kl=find(LOCS < freqrange(1,1));
+%LOCS(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
 % If locs is empty, set locs to NaN for plotting purposes
-if isempty(locs) == 1
-    locs=NaN;
+if isempty(LOCS) == 1
+    LOCS=NaN;
 end
 
-% Additional info
-% Peaks identified
+% DETERMINE WHICH PEAK BEST CORRESPONDS WITH A KNOWN MODE FREQUENCY
+% AND REMOVE THE OTHERS (Note: May use to replace section above.)
+[FREQ,locs,err]=peakcomparison(freqs,LOCS);
+for i = 1:length(locs)
+    idp(i) = find(locs(i) == LOCS);
+end
+pks=pks(idp); prom=(idp); width=width(idp);
+
+% Determine number of peaks identified
 if isnan(locs) == 1
     ipks = 0;
 else
     ipks = length(locs);
 end
-% Number of frequencies 
-nfreqs = length(freqs);
 
 %------------------------------------------------------------------------------------
 switch nargin 
@@ -195,11 +195,11 @@ switch nargin
       end
 
       % Optional output
-      varns={pks,locs,width,prom,freqs,nfreqs,ipks,P1};
+      varns={pks,locs,width,prom,freqs,FREQ,err,P1};
       varargout=varns(1:nargout);
   case 6
     % Optional output
-    varns={pks,locs,width,prom,freqs,nfreqs,ipks};
+    varns={pks,locs,width,prom,freqs,FREQ,err};
     varargout=varns(1:nargout);
 end
 
