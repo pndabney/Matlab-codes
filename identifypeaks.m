@@ -63,43 +63,41 @@ p23ylim = [min(y(in))+5e4 max(y(in))+5e9];
 %-------------------------------------------------------------------------------------
 % FIND PEAK IN THE DATA
 [pks, LOCS, width, prom] = findpeaks(y,x,'MinPeakHeight',thresh); 
-%freqrange = zeros(length(freqs),2);
-%freqrange(:,1) = freqs - freqd;
-%freqrange(:,2) = freqs + freqd;
+freqrange = zeros(length(freqs),2);
+freqrange(:,1) = freqs - freqd;
+freqrange(:,2) = freqs + freqd;
 
 % ELIMINATE PEAKS THAT ARE NOT WITHIN A SPECIFIED RANGE
 % Deal with the upperbound
-%Ku=find(LOCS > freqrange(length(freqs),2));
-%LOCS(Ku)=[]; pks(Ku)=[]; prom(Ku)=[]; width(Ku)=[];
+Ku=find(LOCS > freqrange(length(freqs),2));
+LOCS(Ku)=[]; pks(Ku)=[]; prom(Ku)=[]; width(Ku)=[];
 % Deal with the middle section
 % Make sure to not remove points if there is overlap in frequency range
-%for j = 1:length(freqs)-1
-%    if freqrange(j,2) < freqrange(j+1,1)
-%        Km = find(LOCS > freqrange(j,2) & LOCS < freqrange(j+1,1));
-%        LOCS(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
-%    end
-%end
-% Deal with the lowerbound
-%Kl=find(LOCS < freqrange(1,1));
-%LOCS(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
-% If locs is empty, set locs to NaN for plotting purposes
-if isempty(LOCS) == 1
-    LOCS=NaN;
+for j = 1:length(freqs)-1
+    if freqrange(j,2) < freqrange(j+1,1)
+        Km = find(LOCS > freqrange(j,2) & LOCS < freqrange(j+1,1));
+        LOCS(Km)=[]; pks(Km)=[]; prom(Km)=[]; width(Km)=[];
+    end
 end
+% Deal with the lowerbound
+Kl=find(LOCS < freqrange(1,1));
+LOCS(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
 
 % DETERMINE WHICH PEAK BEST CORRESPONDS WITH A KNOWN MODE FREQUENCY
 % AND REMOVE THE OTHERS (Note: May use to replace section above.)
-[FREQ,locs,err]=peakcomparison(freqs,LOCS);
-for i = 1:length(locs)
-    idp(i) = find(locs(i) == LOCS);
-end
-pks=pks(idp); prom=(idp); width=width(idp);
-
-% Determine number of peaks identified
-if isnan(locs) == 1
-    ipks = 0;
-else
+if ~isempty(LOCS) == 1
+    [FREQ,locs,err]=peakcomparison(freqs,LOCS);
+    for i = 1:length(locs)
+        idp(i) = find(locs(i) == LOCS);
+    end
+    pks=pks(idp); prom=(idp); width=width(idp);
+    % Number of peaks identified
     ipks = length(locs);
+else
+    % If locs is empty, set locs to NaN for plotting purposes
+    locs = NaN;
+    FREQ = []; err = [];
+    ipks = 0;
 end
 
 %------------------------------------------------------------------------------------
