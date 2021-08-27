@@ -16,7 +16,7 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 %                  'egaps' evenly distributed gaps
 % p                1 makes a plot
 %                  0 does not make a plot [default]
-% thresh           Optional threshold for minimum length of data segments
+% thresh           Optional threshold for minimum length of data segments, in samples
 % 
 % OUTPUT:
 %
@@ -27,6 +27,7 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 % mu               Average length of the segmented data
 % M                Two element vector containing the maximum and minimum segment length
 %                  (format: [Min Max])
+% lplot            Array of ones with gaps (demonstraes gaps in data as a simple line plot)
 % SData            New seismic array with gaps (use for plots)
 %
 % Note:
@@ -38,7 +39,7 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 % sd = ones(1,2048); tim = 1:2048; dt=1;  num = randi(10); d = 'rgaps';
 % [CD,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,1);
 %
-% Last modified by pdabney@princeton.edu 08/20/21
+% Last modified by pdabney@princeton.edu 08/27/21
 
 % Default values
 defval('p',0);
@@ -85,19 +86,20 @@ switch nargin
 end
 % Rerun code if cell array is empty
 if isempty(C) == 1
-    [CD,pmis,N,T,mu,M,SData]=mgaps_m1(sd,tim,dt,num,d,p,thresh);
+    [CD,pmis,N,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,p,thresh);
 end
 
 %--------------------------------------------------------------
 % Create a cell array for each to be filled with the data of each section
-one = ones(1,length(SData));
+l = zeros(length(SData),1); lplot=l;
 for i = 1:length(C)
-    one(C{i})=NaN;
+    l(C{i})=NaN;
     CD{i} = sd(C{i});
 end
-% Update array used for plotting
-j = find(~isnan(one));
+% Update arrays used for plotting
+j = find(~isnan(l));
 SData(j)=NaN;
+lplot(j)=NaN;
 %--------------------------------------------------------------
 
 % Calculate the percent of data missing
@@ -124,7 +126,7 @@ if p == 1
 end
 
 % Optional output
-varns={CD,pmis,N,T,mu,M,SData};
+varns={CD,pmis,N,T,mu,M,lplot,SData};
 varargout=varns(1:nargout);
 end
 
