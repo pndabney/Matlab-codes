@@ -91,7 +91,7 @@ end
 
 %--------------------------------------------------------------
 % Create a cell array for each to be filled with the data of each section
-l = zeros(length(SData),1); lplot=l;
+l = ones(length(SData),1); lplot=l;
 for i = 1:length(C)
     l(C{i})=NaN;
     CD{i} = sd(C{i});
