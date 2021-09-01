@@ -12,14 +12,13 @@ function varargout=peakcomparison(freqs,pkloc)
 %
 % f                Mode frequencies likely identified
 % locs             Peak locations that likely correspond to a known mode frequency
-% err              Difference in observed versus known mode frequencies
+% err              Absolute error, the difference between the identified and known frequency 
 %
-% Last modified by pdabney@princeton.edu, 8/25/21
+% Last modified by pdabney@princeton.edu, 9/01/21
 
 % Ensure locs is not NaN
 if isnan(pkloc) == 1
-    f = [];
-    err = [];
+    f = []; err = []; locs = [];
 else
     % Determine which peak location is likely a mode frequency
     for i = 1:length(freqs)
@@ -35,8 +34,9 @@ else
     end 
     f = freqs(unique(id));
 
-    % Difference in observed versus mode frequencies
+    % Absolute error
     err = abs(f-locs);
+
 end
 
 % Optional Output
