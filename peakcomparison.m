@@ -35,12 +35,15 @@ else
     f = freqs(unique(id));
 
     % Absolute error
-    err = abs(f-locs);
-
+    abs_err = abs(locs-f);
+    % Relative error
+    rel_err = abs(abs_err./f);
+    % Percent error
+    per_err = rel_err*100;
 end
 
 % Optional Output
-vars={f,locs,err};
+vars={f,locs,abs_err,rel_err,per_err};
 varargout=vars(1:nargout);
 
 end
