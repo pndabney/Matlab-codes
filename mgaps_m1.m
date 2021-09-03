@@ -1,5 +1,5 @@
-function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
-% [CD,pmis,N,T,mu,M,lplot,SData]=MGAPS_M1(sd,tim,dt,num,d,p,thresh)
+function varargout=mgaps_m1(sd,tim,dt,num,d,p,units,thresh)
+% [CD,pmis,Ns,Ng,T,mu,M,lplot,SData]=MGAPS_M1(sd,tim,dt,num,d,p,units,thresh)
 %
 % Takes a time series and creates synthetic gaps
 %
@@ -16,6 +16,8 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 %                  'egaps' evenly distributed gaps
 % p                1 makes a plot
 %                  0 does not make a plot [default]
+% units            'hrs' hours
+%                  'sec' seconds
 % thresh           Optional threshold for minimum length of data segments, in samples
 % 
 % OUTPUT:
@@ -23,6 +25,7 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 % CD               Cell array of the remaining segments
 % pmis             Percentage of missing data
 % Ns               Number of segments 
+% Ng               Number of gaps
 % T                Total length of segmented data
 % mu               Average length of the segmented data
 % M                Two element vector containing the maximum and minimum segment length
@@ -37,26 +40,32 @@ function varargout=mgaps_m1(sd,tim,dt,num,d,p,thresh)
 % EXAMPLE:
 %
 % sd = ones(1,2048); tim = 1:2048; dt=1;  num = randi(10); d = 'rgaps';
-% [CD,pmis,Ns,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,1);
+% [CD,pmis,Ns,Ng,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,1);
 %
 % Last modified by pdabney@princeton.edu 09/01/21
 
 % Factor to multiply by for text position
-tpx = 0.70;
-tpy = 0.80;
+tpx = 0.80;
+tpy = 0.90;
 % Conversion for seconds to hours
-ucon = 1/3600;
+if strcmp(units,'sec') == 1
+    ucon = 1;
+    ustr = 's';
+elseif strcmp(units,'hrs') == 1
+    ucon = 1/3600;
+    ustr = 'h';
+end
 
 N=length(sd);
 % MAIN
-if isstr(d) & d=='rgaps'
+if strcmp(d,'rgaps') == 1
     ng = sort(unique(round(N*rand(1,2*num))));
     % must be an even amount to form pairs
     while mod(length(ng),2) == 1
         ext = round(N*rand(1)); 
         ng = unique(sort(horzcat(ng,ext)));
     end
-elseif isstr(d) & d=='egaps'
+elseif strcmp(d,'egaps') == 1
     if num == 1
         error('Number of gaps must be greater than 1')
     end
@@ -73,17 +82,17 @@ nsd = find(~isnan(SData));
 
 % Optional threshold
 switch nargin
-    case 7
+    case 8
       % Ensure segments are longer than thresh
       clen=cellfun(@length,C);
       K=find(clen < thresh);
       C(K)=[];
-    case 6
+    case 7
       % do nothing
 end
 % Rerun code if cell array is empty
 if isempty(C) == 1
-    [CD,pmis,N,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,p,thresh);
+    [CD,pmis,Ns,Ng,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,p,units,thresh);
 end
 
 %--------------------------------------------------------------
@@ -103,12 +112,14 @@ lplot(j)=NaN;
 pmis = ((N-sum(abs(~isnan(SData))))/N) * 100; 
 % Number of segments
 Ns = length(CD);
+% Number of gaps
+Ng = length(ng)/2;
 % Max and min segment length
 clen = cellfun(@length,CD);
-M = [min(clen) max(clen)]*dt;
+M = round([min(clen) max(clen)]*dt*ucon,2);
 % Average length of data segments
 tol = sum(clen);
-T = tol*dt; mu = T/Ns;
+T = round(tol*dt*ucon,2); mu = round(T/Ns*ucon,2);
 
 % Optional plot
 if p == 1
@@ -118,12 +129,12 @@ if p == 1
     title(sprintf('Percent Missing: %.f',pmis))
     XL=xlim; YL=ylim;
     % Change units from hours to seconds as needed
-    text(tpx*XL(2),tpy*YL(2),sprintf('T=%.2f h, mu=%.2f h,\nmin=%.2f h, max=%.2f h,\ndt=%.2f, N=%.f',...
-                                    round(T*ucon,2),round(mu*ucon,2),round(M(1)*ucon,2),round(M(2)*ucon,2),dt,Ns), 'HorizontalAlignment','center');
+    text(tpx*XL(2),tpy*YL(2),sprintf('T=%.2f %s, mu=%.2f %s,\nmin=%.2f %s, max=%.2f %s,\ndt=%.2f s, N=%.f, G=%.f',...
+         T,ustr,mu,ustr,M(1),ustr,M(2),ustr,dt,Ns,Ng),'HorizontalAlignment','center','FontSize',9);
 end
 
 % Optional output
-varns={CD,pmis,Ns,T,mu,M,lplot,SData};
+varns={CD,pmis,Ns,Ng,T,mu,M,lplot,SData};
 varargout=varns(1:nargout);
 end
 
