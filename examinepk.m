@@ -17,8 +17,8 @@ function varargout=examinepk(x,y,freq,frange,ptype,thresh)
 % Y              Data array of only specifed frequency range of interest (1-D)
 % X              Corresponding x-axis array (1-D)
 % g              Gaussian Curve
-% peak           Struct of information about peak of interest
-% gauss          Struct of information about gaussian distribution 
+% peakinfo       Struct of information about peak of interest
+% gaussfit       Struct of information about gaussian distribution 
 %
 % Last modified by pdabney@princeton.edu, 9/8/21
 
@@ -31,8 +31,8 @@ a1 = cfit.a1; b1 = cfit.b1; c1 = cfit.c1;
 g = a1*exp(-((X-b1)/c1).^2);
 
 % Find peak,location, width, prominence
-[pks1,locs1,wdt1,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
-[pks2,locs2,wdt2,~]=findpeaks(g,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks1,locs1,wdt1,prm1]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks2,locs2,wdt2,prm2]=findpeaks(g,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
 
 
 % Find the mean and standard deviation for the Data and Gaussian distribution
@@ -57,20 +57,22 @@ Ra = [A1(1)/A2(1) A1(2)/A2(2)];
 
 
 % Create struct for output
-% Gaussian curve
-gauss.height = pks2; gauss.location = locs2; gauss.width = wdt2;
-gauss.mu = mu(2); gauss.sigma = sigma(2); 
-gauss.kurtosis = kurt(2); gauss.skewness = skew(2);
-gauss.area = Area(2); gausa.RA = Ra(2);
-% Identified peak
-peak.height = pks1; peak.location = locs1; peak.width = wdt1;
-peak.mu = mu(1); peak.sigma = sigma(1);
-peak.kurtosis = kurt(1); peak.skewness = skew(1);
-peak.area = Area(1); peak.Ra = Ra(1);
+% Peak
+peakinfo.Mean = mu(1); peakinfo.Standard_Deviation = sigma(1);
+peakinfo.Height = pks1; peakinfo.Location = locs1;
+peakinfo.Width = wdt1; peakinfo.Prominence = prm1;
+peakinfo.Area = Area(1); peakinfo.RA = Ra(1);
+peakinfo.Skewness = skw(1); peakinfo.Kurtosis = kurt(1);
+% Gaussian Distribution
+gaussfit.Mean = mu(2); gaussfit.Standard_Deviation = sigma(2);
+gaussfit.Height = pks2; gaussfit.Location = locs2;
+gaussfit.Width = wdt2; gaussfit.Prominence = prm2;
+gaussfit.Area = Area(2); gaussfit.RA = Ra(2);
+gaussfit.Skewness = skw(2); gaussfit.Kurtosis = kurt(2);
 
 
 % Optional Output
-vars={X,Y,g,peak,gauss};
+vars={X,Y,g,peakinfo,gaussfit};
 varargout=vars(1:nargout);
 
 end
