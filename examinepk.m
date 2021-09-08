@@ -48,11 +48,11 @@ skw = [skewness(X) skewness(g)];
 % Center peak location index
 cp = find(X == locs1,1); cpg = find(X == locs2,1);
 % Area of the RHS
-A1 = [trapz(X(cp:end),Y(cp:end)) X(cpg:end),g(cpg:end))];
+A1 = [trapz(X(cp:end),Y(cp:end)) trapz(X(cpg:end),g(cpg:end))];
 % Area of the LHS
-A2 = [trapz(X(1:cp),Y(1:cp)) X(1:cpg),g(1:cpg))];
+A2 = [trapz(X(1:cp),Y(1:cp)) trapz(X(1:cpg),g(1:cpg))];
 % Ratio of the area of the  RHS and LHS 
-% (if R > 1, A1 > A2; if R < 1, A1 < A2)
+% (if Ra > 1, A1 > A2; if Ra < 1, A1 < A2)
 Ra = [A1(1)/A2(1) A1(2)/A2(2)];
 
 
