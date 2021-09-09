@@ -1,41 +1,35 @@
-function varargout=identifypeaks(x,y,freqs,frange,thresh,units,ptype)
-% [pks,locs,width,prom,freqs,FREQ,err,P1]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units,ptype);
+function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
+% [pks,locs,width,prom,freqs,FREQ,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
 %
-% Identifies and plots peaks given a specified threshold.
+% Identifies and characterizes peaks given a specified threshold. 
 %
 % Input:
 %
-% y              Data (1-D)
+% y              Data array (1-D)
 % x              Corresponding x-axis data (1-D)
-% freqs          Vector containing mode frequencies of interest
+% freqs          Vector containing mode frequencies of interest, in hertz
 % frange         Frequency range of interest, in hertz (format: [f1 f2])
 % thresh         Minimum height difference between a peak and its neighbors
 % units          0 Hertz
 %                1 Millihertz [default]
 %                2 Microhertz
-% ptype          Optional plot: A plot is made when a ptype is chosen. If there 
-%                is no input for ptype, no plot is made.
-%                0 regular plot
-%                1 log scale on x-axis
-%                2 log scale on y-axis [default]
-%                3 log-log scale plot
 %
 % Output:
 %
+% X              X-axis data array with converted units
 % pks            Vector with local maxima (peaks) 
 % locs           Location where peaks occur
 % width          Width of the peaks
 % prom           Prominence of the peaks
 % freqs          Vector containing all mode frequencies in range of interest
-% FREQ           Mode frequencies likely identified
+% corfreq        Mode frequencies likely identified
 % err            Vector containing the difference in observed versus known mode frequencies
-% P1             Seismic Data used for plots
 %
 % NOTE:
 %
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
-% Last modified by pdabney@princeton.edu, 8/25/21
+% Last modified by pdabney@princeton.edu, 9/9/21
 
 % CONVERT UNITS
 if units == 0
@@ -45,24 +39,17 @@ elseif units == 1
 elseif units == 2
     ucon = 1e6;
 end
+
 % Convert x data units
-x = x*ucon;
+X = x*ucon;
 % Convert frequency units
 freqs = freqs*ucon;
 % Distannce range around frequency of interest
 freqd = 5*1e-5*ucon;
 
-% Adjust x and y limits to correspond with conversion
-exlim = frange*ucon;
-in = find(x >= exlim(1) & x <= exlim(2));
-% y limits for ptype=0,1
-p01ylim = [min(y(in))-1e8 max(y(in))+1e8];
-% y limits for ptype=2,3
-p23ylim = [min(y(in))+5e4 max(y(in))+5e9];
-
 %-------------------------------------------------------------------------------------
 % FIND PEAK IN THE DATA
-[pks, LOCS, width, prom] = findpeaks(y,x,'MinPeakHeight',thresh); 
+[pks, LOCS, width, prom] = findpeaks(y,X,'MinPeakHeight',thresh); 
 freqrange = zeros(length(freqs),2);
 freqrange(:,1) = freqs - freqd;
 freqrange(:,2) = freqs + freqd;
@@ -86,120 +73,20 @@ LOCS(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
 % DETERMINE WHICH PEAK BEST CORRESPONDS WITH A KNOWN MODE FREQUENCY
 % AND REMOVE THE OTHERS (Note: May use to replace section above.)
 if ~isempty(LOCS) == 1
-    [FREQ,locs,err]=peakcomparison(freqs,LOCS);
+    [corfreq,locs,err]=peakcomparison(freqs,LOCS);
     for i = 1:length(locs)
         idp(i) = find(locs(i) == LOCS);
     end
     pks=pks(idp); prom=(idp); width=width(idp);
-    % Number of peaks identified
-    ipks = length(locs);
 else
     % If locs is empty, set locs to NaN for plotting purposes
     locs = NaN;
-    FREQ = []; err = [];
-    ipks = 0;
+    corfreq = NaN; err = NaN;
 end
 
-%------------------------------------------------------------------------------------
-switch nargin 
-    case 7
-      % Plot of mode frequencies in power spectrum
-      f = figure('Units', 'centimeters', 'Position', [0.05, 2.8, 18, 16], 'PaperPositionMode','Auto');
-      %figure(gcf); clf;
-      set(gca, 'LineWidth', 1.25, 'FontSize', 8);
-      hx1 = subplot(211);
-      set(hx1,'Position',[0.15, .57, .8, .32]);
-      ax1 = gca; 
-      if ptype == 0
-          P1=plot(x,y,'LineWidth',2);    
-          hold on;
-          p1=plot([freqs freqs], p01ylim, 'r', 'LineWidth',0.1);
-          hold off;
-          ylim(p01ylim)
-      elseif ptype == 1
-          P1=semilogx(x,y,'LineWidth',2);
-          hold on;
-          p1=plot([freqs freqs], p01ylim, 'r', 'LineWidth',0.1);
-          hold off;
-          ylim(p01ylim)
-      elseif ptype == 2
-          P1=semilogy(x,y,'LineWidth',2);
-          hold on;
-          p1=plot([freqs freqs], p23ylim, 'r', 'LineWidth',0.1);
-          hold off;
-          ylim(p23ylim)
-      elseif ptype == 3
-          P1=loglog(x,y,'LineWidth',2);    
-          hold on;
-          p1=loglog([freqs freqs], p23ylim, 'r', 'LineWidth',0.1);
-          hold off;
-          ylim(p23ylim)
-      end
-      title(sprintf('N=%.f',ipks));
-      uistack(P1,'top');
-      xlim(exlim)
-      ax1.XGrid = 'off'; ax1.YGrid = 'on';
-      set(ax1,'xticklabel',[]);
-      ylabel({'Spectral Density', '(Energy/Hz)'});
-      if exist('p1')
-          legend({'Widmer & Masters'});
-      end
-      hx2 = subplot(212);
-      set(hx2,'Position',[0.15, .22, .8, .32]);
-      if ptype == 0
-          P2=plot(x,y,'LineWidth',2);
-          hold on;
-          p2=plot([locs'; locs'], p01ylim, 'k', 'LineWidth', 0.1);
-          hold off;
-          ylim(p01ylim)
-      elseif ptype == 1
-          P2=semilogx(x,y,'LineWidth',2);
-          hold on;
-          p2=plot([locs'; locs'], p01ylim, 'k', 'LineWidth', 0.1);
-          hold off;
-          ylim(p01ylim)
-      elseif  ptype == 2
-          P2=semilogy(x,y,'LineWidth',2);
-          hold on;
-          p2=plot([locs'; locs'], p23ylim, 'k', 'LineWidth', 0.1);
-          hold off;
-          ylim(p23ylim)
-      elseif ptype == 3
-          P2=loglog(x,y,'LineWidth',2);
-          hold on;
-          p2=plot([locs'; locs'], p23ylim, 'k', 'LineWidth', 0.1);
-          hold off
-          ylim(p23ylim)
-      end
-      uistack(P2,'top');
-      hx2.XGrid = 'off'; hx2.YGrid = 'on';
-      xlim(exlim)
-      ylabel({'Spectral Density', '(Energy/Hz)'})
-      
-      % Determine Frequency unit label
-      if units == 0
-          xlabel('Frequency (Hz)') 
-      elseif units == 1
-          xlabel('Frequency (mHz)')
-      elseif units == 2
-          xlabel('Frequency (\muHz)')
-      else
-          warning('Frequency units unspecified')
-          xlabel('Frequency')
-      end
-
-      if exist('p2')
-          legend({'Estimated'});
-      end
-
-      % Optional output
-      varns={pks,locs,width,prom,freqs,FREQ,err,P1};
-      varargout=varns(1:nargout);
-  case 6
-    % Optional output
-    varns={pks,locs,width,prom,freqs,FREQ,err};
-    varargout=varns(1:nargout);
-end
-
+%-------------------------------------------------------------------------------------
+% Optional output
+varns={X,pks,locs,width,prom,freqs,corfreq,err};
+varargout=varns(1:nargout);
 
 end
