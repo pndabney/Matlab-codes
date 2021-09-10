@@ -99,10 +99,12 @@ end
 % Create a cell array for each to be filled with the data of each section
 l = ones(length(SData),1); lplot=l;
 for i = 1:length(C)
-    l(C{i})=NaN;
-    CD{i} = sd(C{i});
+    l(C{i})=NaN; % needed to update array if threshold was used
+    CD{i} = sd(C{i}); % fill cell with data
 end
 % Update arrays used for plotting
+% Fills nonNaN with NaN because l originally filled sections of data with NaN
+% Now the data segments in CD correspond to SData segments
 j = find(~isnan(l));
 SData(j)=NaN;
 lplot(j)=NaN;
@@ -120,7 +122,7 @@ M = round([min(clen) max(clen)]*dt*ucon,2);
 % Average length of data segments
 tol = sum(clen);
 T = round(tol*dt*ucon,2); mu = round(T/Ns*ucon,2);
-
+%--------------------------------------------------------------
 % Optional plot
 if p == 1
     plot(tim,SData);
@@ -132,7 +134,7 @@ if p == 1
     text(tpx*XL(2),tpy*YL(2),sprintf('T=%.2f %s, mu=%.2f %s,\nmin=%.2f %s, max=%.2f %s,\ndt=%.2f s, N=%.f, G=%.f',...
          T,ustr,mu,ustr,M(1),ustr,M(2),ustr,dt,Ns,Ng),'HorizontalAlignment','center','FontSize',9);
 end
-
+%--------------------------------------------------------------
 % Optional output
 varns={CD,pmis,Ns,Ng,T,mu,M,lplot,SData};
 varargout=varns(1:nargout);
