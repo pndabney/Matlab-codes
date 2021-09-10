@@ -1,5 +1,5 @@
 function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
-% [pks,locs,width,prom,freqs,FREQ,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
+% [X,pks,locs,width,prom,freqs,FREQ,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
 %
 % Identifies and characterizes peaks given a specified threshold. 
 %
@@ -29,7 +29,7 @@ function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
 %
 % Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
-% Last modified by pdabney@princeton.edu, 9/9/21
+% Last modified by pdabney@princeton.edu, 9/10/21
 
 % CONVERT UNITS
 if units == 0
