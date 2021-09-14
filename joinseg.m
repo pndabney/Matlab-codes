@@ -1,4 +1,4 @@
-function varargout=joinseg(p,ts1,ts2,ts3)
+function varargout=joinseg(ts1,ts2,ts3)
 % [T,S,sd1,tim1,sd2,ntim2,sd3,ntim3]=JOINSEG(ts1,ts2,ts3)
 %
 % Takes in multiple segments of time series and links them together to form a single
@@ -38,7 +38,7 @@ tim2 = ts2.t(:); sd2 = ts2.sd(:); hdr2 = ts2.h;
 offset1 = hdr1.E;
 
 switch nargin
-   case 4 % If the third segment exists
+   case 3 % If the third segment exists
      % Extract data from third segment struct
      tim3 = ts3.t(:); sd3 = ts3.sd(:); hdr3 = ts3.h;
        
@@ -56,7 +56,7 @@ switch nargin
      varns={T,S,sd1,tim1,sd2,ntim2,sd3,ntim3};
      varargout=varns(1:nargout);
 
-   case 3 % If there are only two files
+   case 2 % If there are only two files
      % Append the segments
      S = vertcat(sd1,sd2);
      ntim2 = tim2 + offset1; 
