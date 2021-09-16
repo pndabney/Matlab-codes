@@ -1,5 +1,5 @@
 function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
-% [X,pks,locs,width,prom,freqs,FREQ,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
+% [X,pks,locs,width,prom,freqs,idmodes,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
 %
 % Identifies and characterizes peaks given a specified threshold. 
 %
@@ -22,12 +22,8 @@ function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
 % width          Width of the peaks
 % prom           Prominence of the peaks
 % freqs          Vector containing all mode frequencies in range of interest
-% corfreq        Mode frequencies likely identified
+% idmodes        Mode frequencies likely identified
 % err            Vector containing the difference in observed versus known mode frequencies
-%
-% NOTE:
-%
-% Data from  Free Oscillations: Frequencies and Attenuations by Masters and Widmer 1995.
 %
 % Last modified by pdabney@princeton.edu, 9/10/21
 
@@ -73,7 +69,7 @@ LOCS(Kl)=[]; pks(Kl)=[]; prom(Kl)=[]; width(Kl)=[];
 % DETERMINE WHICH PEAK BEST CORRESPONDS WITH A KNOWN MODE FREQUENCY
 % AND REMOVE THE OTHERS (Note: May use to replace section above.)
 if ~isempty(LOCS) == 1
-    [corfreq,locs,err]=peakcomparison(freqs,LOCS);
+    [idmodes,locs,err]=peakcomparison(freqs,LOCS);
     for i = 1:length(locs)
         idp(i) = find(locs(i) == LOCS);
     end
@@ -81,12 +77,12 @@ if ~isempty(LOCS) == 1
 else
     % If locs is empty, set locs to NaN for plotting purposes
     locs = NaN;
-    corfreq = NaN; err = NaN;
+    idmodes = NaN; err = NaN;
 end
 
 %-------------------------------------------------------------------------------------
 % Optional output
-varns={X,pks,locs,width,prom,freqs,corfreq,err};
+varns={X,pks,locs,width,prom,freqs,idmodes,err};
 varargout=varns(1:nargout);
 
 end

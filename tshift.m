@@ -1,5 +1,5 @@
 function varargout=tshift(HrData,tims)
-% [stdate,ntims]=TSHIFT(HrData,tims)
+% [startdate,ntims]=TSHIFT(HrData,tims)
 %
 % Shifts the time array on the x-axis by the start time
 % 
@@ -11,28 +11,43 @@ function varargout=tshift(HrData,tims)
 % OUTPUT:
 %
 % ntims            Shifted times on the x-axis
-% stdate           Start date [format: 'yyyy-MM-dd HH:mm:ss.SSS']
+% startdate        Start date [format: 'yyyy-MM-dd HH:mm:ss.SSS']
 %
+% Note:
 %
-% Last modified by pdabney@princeton.edu, 04/17/21
+% Requires repository slepian_oscar. See jul2dat.
+%
+% Last modified by pdabney@princeton.edu, 09/14/21
 
+% Conversion constants
+days = 365; % days in a year
+hrs = 24; % hours in a day
+mins = 60; % minutes in an hour
+secs = 60; % seconds in an minute
 
-% Reformat
-% Convert from julian date
-day = datestr(HrData.NZJDAY+1,'mm-dd'); % must add 1 to get the correct date
-stime = join([string(HrData.NZHOUR),string(HrData.NZMIN),string(HrData.NZSEC)],':');
-starttime = join([stime,string(HrData.NZMSEC)],'.');
-date = join([string(HrData.NZYEAR),day],'-');
-st = datenum(join([date,starttime],' '));
-std = datestr(st, 'yyyy-mm-dd HH:MM:SS.FFF');
-stdate = datetime(std,'InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
+% Extract year and julian day 
+juldate = HrData.NZJDAY;
+yr = HrData.NZYEAR;
+% Convert from julian date to get [month day year]
+vdate = jul2dat(yr,juldate);
+month = vdate(1); day = vdate(2);
+
+% Obtain startdate
+startdate = datetime(yr,month,day,HrData.NZHOUR,HrData.NZMIN,HrData.NZSEC,...
+                    HrData.NZSEC,'Format','yyyy-MM-dd HH:mm:ss.SSS');
+
+% Convert startdate into seconds
+yr_sec = yr*days*hrs*mins*secs;
+day_sec = juldate*hrs*mins*secs;
+hr_sec = HrData.NZHOUR*mins*secs;
+min_sec = HrData.NZMIN*secs;
+dat2sec = yr_sec + day_sec + hr_sec + min_sec + HrData.NZSEC;
 
 % Shift the time data by the start date
-ntims = stdate + seconds(tims);
-
+ntims = startdate + tims;
 
 % Optional output
-varns={stdate,ntims};
+varns={startdate,ntims};
 varargout=varns(1:nargout);
 
 end
