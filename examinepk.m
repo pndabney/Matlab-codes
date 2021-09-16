@@ -1,39 +1,27 @@
-function varargout=examinepk(x,y,freq,frange,ptype,thresh)
-% [Y,X,g,peak,gauss]=examinepk(x,y,freq,frange,ptype,thresh)
+function varargout=examinepk(x,y,cfit,thresh)
+% [g,peak,gauss]=examinepk(x,y,cfit,thresh)
 %
 % Examines the size and shape, mean and standard deviation, and fits a gaussian distribution to
 % a single peak of interest. 
 %
 % Input:
 %
-% y              Data array (1-D)
+% y              Data array only in frequency range of interest (1-D)
 % x              Corresponding x-axis array (1-D)
-% freq           Mode frequency of interest
-% frange         Index for frequency range 
+% cfit           Gaussian curve fit, output from fitgauss
 % thresh         Threshold, minimum peak height
 %
 % Output:
 %
-% Y              Data array of only specifed frequency range of interest (1-D)
-% X              Corresponding x-axis array (1-D)
 % g              Gaussian Curve
 % peakinfo       Struct of information about peak of interest
 % gaussfit       Struct of information about gaussian distribution 
 %
-% Last modified by pdabney@princeton.edu, 9/8/21
-
-% Compute Gaussian Distribution
-% Does not create a plot through fitgauss
-plotornot = 0;
-[X,Y,cfit,~,~]=fitgauss(y,x,freq,frange,thresh,plotornot);  
-% Variables for Gaussian function
-a1 = cfit.a1; b1 = cfit.b1; c1 = cfit.c1;
-g = a1*exp(-((X-b1)/c1).^2);
+% Last modified by pdabney@princeton.edu, 9/16/21
 
 % Find peak,location, width, prominence
-[pks1,locs1,wdt1,prm1]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
-[pks2,locs2,wdt2,prm2]=findpeaks(g,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
-
+[pks1,locs1,wdt1,prm1]=findpeaks(y,x,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks2,locs2,wdt2,prm2]=findpeaks(cfit(x),x,'MinPeakHeight',thresh,'WidthReference','halfheight');
 
 % Find the mean and standard deviation for the Data and Gaussian distribution
 mu = [mean(Y) mean(g)]; sigma = [std(Y) std(g)];
@@ -55,7 +43,6 @@ A2 = [trapz(X(1:cp),Y(1:cp)) trapz(X(1:cpg),g(1:cpg))];
 % (if Ra > 1, A1 > A2; if Ra < 1, A1 < A2)
 Ra = [A1(1)/A2(1) A1(2)/A2(2)];
 
-
 % Create struct for output
 % Peak
 peakinfo.Mean = mu(1); peakinfo.Standard_Deviation = sigma(1);
@@ -70,9 +57,8 @@ gaussfit.Width = wdt2; gaussfit.Prominence = prm2;
 gaussfit.Area = Area(2); gaussfit.RA = Ra(2);
 gaussfit.Skewness = skw(2); gaussfit.Kurtosis = kurt(2);
 
-
 % Optional Output
-vars={X,Y,g,peakinfo,gaussfit};
+vars={g,peakinfo,gaussfit};
 varargout=vars(1:nargout);
 
 end
