@@ -1,5 +1,5 @@
-function varargout=identifypeaks(x,y,freqs,frange,thresh,units)
-% [X,pks,locs,width,prom,freqs,idmodes,err]=IDENTIFYPEAKS(x,y,freqs,frange,thresh,units);
+function varargout=idpks(x,y,freqs,frange,thresh,units)
+% [X,pks,locs,width,prom,freqs,idmodes,err]=IDPKS(x,y,freqs,frange,thresh,units);
 %
 % Identifies and characterizes peaks given a specified threshold. 
 %
