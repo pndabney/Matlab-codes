@@ -1,42 +1,45 @@
-function varargout=fitgauss(y,x,freq,frange,thresh,plotornot)
-% [X,Y,cfit,e,res]=fitguass(y,x,freq,frange,thresh,plotornot)
+function varargout=fitgauss(y,x,freq,wlen,thresh)
+% [X,Y,cfit,e,res]=fitgauss(y,x,freq,wlen,thresh)
 %
 % Fit gaussian distribution curve to single peak of interest.
+% Note: Only works if there is a single peak, need to look into a 
+% new method for multiple peaks (such as mode splitting).
 %
 % Input:
 % 
 % y              Data (1-D)
 % x              Corresponding x-axis data (1-D)
-% freqs          Vector containing mode frequencies of interest
-% frange         Vector containing frequency range of interest (format: [f1 f2])
+% freq           Single frequencies of interest
+% wlen           Length of window
 % thresh         Minimum height difference between a peak and its neighbors
-% plotornot      0 does not plot 
-%                1 plot
 %
 % Output:
 %
 % Y              Data in specifed frequency range of interest (1-D)             
 % X              Corresponding x-axis data (1-D)
-% cfit           Gaussian curve fit result
+% cfit           Gaussian curve fit result, use for plotting
 % e              Root mean squared error
 % res            Residuals, as vector
 %
-%
-% Last modified by pdabney@princeton.edu, 9/8/21
+% Last modified by pdabney@princeton.edu, 9/16/21
 
-% Ensure the frequencies are increasing from left to right
-frange = sort(frange);
+% Take half the window 
+halfwin = wlen/2;
+% Obtain a frequency range of interest
+frange = [freq-halfwin freq+halfwin];
 
 % Find indexes for lower and upper bounds
-lb = find(frange(1) == x,1); ub = find(frange(2) == x,1);
-
+[~,lb] = min(abs(frange(1)-x));
+[~,ub] = min(abs(frange(2)-x));
 % Obtain data from only the range of interest
 X = x(lb:ub); Y = y(lb:ub);
-% Find peak within range of interest
+
+% Need to obtain the full width at half maximum 
 [pks,locs,wdt,~]=findpeaks(Y,X,'Threshold',thresh,'WidthReference','halfheight');
-% Ensure there is only one peak
-if length(pks) > 1
-    error('Must obtain a single peak')
+
+% Can only imput one width as a starting point, thus must have only a single peak.
+if wdt > 1
+    error('Must obtain a single peak.')
 end
 
 % Choose starting points for fit
@@ -48,19 +51,6 @@ gmodel = fittype('a1*exp(-((x-b1)/c1)^2)');
 res = output.residuals;
 % Root mean square error
 e = gof.rmse;
-
-% Optional Figure
-if plotornot == 1
-    figure(clf);
-    plot(X,Y,'ok'); hold on
-    plot(cfit,'r'); hold off
-    xlim([X(1) X(end)])
-    ylabel('Spectral Density (Energy/Hz)')
-    xlabel('Frequency (Hz)')
-    legend({'Spectral Density','Best Fit Gaussian'})
-elseif plotornot == 0
-    % Do not plot
-end
 
 % Optional Output
 vars={X,Y,cfit,e,res};
