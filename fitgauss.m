@@ -35,8 +35,8 @@ frange = [freq-halfwin freq+halfwin];
 X = x(lb:ub); Y = y(lb:ub);
 
 % Need to obtain the full width at half maximum 
-[pks,locs,wdt,~]=findpeaks(Y,X,'Threshold',thresh,'WidthReference','halfheight');
-
+[pks,locs,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+keyboard
 % Can only imput one width as a starting point, thus must have only a single peak.
 if wdt > 1
     error('Must obtain a single peak.')
