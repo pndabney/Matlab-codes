@@ -25,7 +25,7 @@ function varargout=idpks(x,y,freqs,frange,thresh,units)
 % idmodes        Mode frequencies likely identified
 % err            Vector containing the difference in observed versus known mode frequencies
 %
-% Last modified by pdabney@princeton.edu, 9/10/21
+% Last modified by pdabney@princeton.edu, 9/16/21
 
 % CONVERT UNITS
 if units == 0
