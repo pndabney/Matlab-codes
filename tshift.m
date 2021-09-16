@@ -36,6 +36,9 @@ month = vdate(1); day = vdate(2);
 startdate = datetime(yr,month,day,HrData.NZHOUR,HrData.NZMIN,HrData.NZSEC,...
                     HrData.NZSEC,'Format','yyyy-MM-dd HH:mm:ss.SSS');
 
+%--------------------------------------------------------------------------------
+% Need a better method
+%--------------------------------------------------------------------------------
 % Convert startdate into seconds
 yr_sec = yr*days*hrs*mins*secs;
 day_sec = juldate*hrs*mins*secs;
@@ -45,7 +48,7 @@ dat2sec = yr_sec + day_sec + hr_sec + min_sec + HrData.NZSEC;
 
 % Shift the time data by the start date
 ntims = startdate + tims;
-
+%--------------------------------------------------------------------------------
 % Optional output
 varns={startdate,ntims};
 varargout=varns(1:nargout);
