@@ -11,7 +11,7 @@ function varargout=fitgauss(y,x,freq,wlen,thresh)
 % x              Corresponding x-axis data (1-D)
 % freq           Single frequencies of interest
 % wlen           Length of window
-% thresh         Minimum height difference between a peak and its neighbors
+% thresh         Minimum Peak height 
 %
 % Output:
 %
@@ -35,8 +35,8 @@ frange = [freq-halfwin freq+halfwin];
 X = x(lb:ub); Y = y(lb:ub);
 
 % Need to obtain the full width at half maximum 
-[pks,locs,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
-keyboard
+[~,~,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+
 % Can only imput one width as a starting point, thus must have only a single peak.
 if wdt > 1
     error('Must obtain a single peak.')
