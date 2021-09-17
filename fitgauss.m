@@ -28,11 +28,8 @@ halfwin = wlen/2;
 % Obtain a frequency range of interest
 frange = [freq-halfwin freq+halfwin];
 
-% Find indexes for lower and upper bounds
-[~,lb] = min(abs(frange(1)-x));
-[~,ub] = min(abs(frange(2)-x));
-% Obtain data from only the range of interest
-X = x(lb:ub); Y = y(lb:ub);
+% Obtains data arrays only within range of interest
+[X,Y] = inrange(x,y,xrange);
 
 % Need to obtain the full width at half maximum 
 [~,~,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
