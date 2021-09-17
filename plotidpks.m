@@ -24,12 +24,8 @@ function varargout=plotidpks(x,y,locs,freqs,frange,ptype)
 % Y limit constant as a buffer for plotting (change as needed)
 ybuff = 1e8;
 
-% Ensure f1 < f2 in frange
-frange = sort(frange);
-
-% Only get data within range of interest
-in = find(x >= frange(1) & x <= frange(2));
-X = x(in); Y = y(in);
+% Obtain data arrays only within range of interest
+[X,Y] = inrange(x,y,frange);
 
 % Get y-axis limits for different plot types
 % y limits for NO y-axis log scale
