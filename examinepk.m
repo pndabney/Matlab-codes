@@ -1,5 +1,5 @@
 function varargout=examinepk(x,y,cfit,thresh)
-% [g,peak,gauss]=examinepk(x,y,cfit,thresh)
+% [g,peakinfo,gaussfit]=examinepk(x,y,cfit,thresh)
 %
 % Examines the size and shape, mean and standard deviation, and fits a gaussian distribution to
 % a single peak of interest. 
@@ -17,7 +17,7 @@ function varargout=examinepk(x,y,cfit,thresh)
 % peakinfo       Struct of information about peak of interest
 % gaussfit       Struct of information about gaussian distribution 
 %
-% Last modified by pdabney@princeton.edu, 9/16/21
+% Last modified by pdabney@princeton.edu, 9/28/21
 
 % Find peak,location, width, prominence
 [pks1,locs1,wdt1,prm1]=findpeaks(y,x,'MinPeakHeight',thresh,'WidthReference','halfheight');
