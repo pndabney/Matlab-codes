@@ -38,8 +38,6 @@ function varargout=singlepktest(fname,freq,fwd,olap,num,ptype,thresh,plotornot,p
 % N             Window Length (hr)
 % Nwin          Number of windows
 % dt            Sampling period (s)
-% sigma         Standard Deviation of the data
-% mu            Mean of the data
 %
 % Note:
 %
@@ -88,8 +86,13 @@ lwin = round(L/num); Fs = 1./Hdr.DELTA; nfft = lwin;
 F = F*ucon;
 omega = freq*ucon;
 fdist = fwd*ucon;
+
+% Fit a gaussian curve to the the peak
+[X,Y,bnds,cfit,e,res]=fitgauss(SD,F,omega,2*fdist,thresh);
 % Determine indexes for range of interest
-frange = find(F>= omega-fdist & F<= omega+fdist);
+frange = bnds(1):bnds(2);
+% Examine peak and fit gauss 
+[g,peakinfo,gaussfit]=examinepk(X,Y,cfit,thresh);
 
 % Computations for figure
 % Sampling rate (s)
@@ -100,21 +103,6 @@ T = Hdr.E*s2h;
 N = (lwin*dt)*s2h;
 % Number of windows
 Nwin = round(Hdr.NPTS/lwin);
-
-
-% Examine peak 
-[X,Y,sigma,mu,g,pks,locs,wdt,prm,Area,Ra,skw,kurt]=examinepk(F,SD,omega,frange,ptype,thresh);
-% Create struct for peak
-peakinfo.Mean = mu(1); peakinfo.Standard_Deviation = sigma(1);
-peakinfo.Height = pks(1); peakinfo.Location = locs(1);
-peakinfo.Width = wdt(1); peakinfo.Prominence = prm(1);
-peakinfo.Area = Area(1); peakinfo.Skewness = skw(1); peakinfo.Kurtosis = kurt(1);
-% Create struct for gaussian distribution
-gaussfit.Mean = mu(2); gaussfit.Standard_Deviation = sigma(2);
-gaussfit.Height = pks(2); gaussfit.Location = locs(2);
-gaussfit.Width = wdt(2); gaussfit.Prominence = prm(2);
-gaussfit.Area = Area(2); gaussfit.Skewness = skw(2); gaussfit.Kurtosis = kurt(2);
-
 
 %----------------------------------------------------------------------------------
 if plotornot == 1
@@ -207,11 +195,11 @@ if plotornot == 1
                   T,N,Nwin,olap,dt))
 
     % Optional Output
-    vars={p,l,g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu};
+    vars={p,l,g,peakinfo,gaussfit,T,N,Nwin,dt};
     varargout=vars(1:nargout);
 else   
     % Optional Output
-    vars={g,peakinfo,gaussfit,T,N,Nwin,dt,sigma,mu};
+    vars={g,peakinfo,gaussfit,T,N,Nwin,dt};
     varargout=vars(1:nargout);
 end
 
