@@ -1,5 +1,5 @@
-function varargout=examinepk(x,y,cfit,thresh)
-% [g,peakinfo,gaussfit]=examinepk(x,y,cfit,thresh)
+function varargout=examinepk(X,Y,cfit,thresh)
+% [g,peakinfo,gaussfit]=examinepk(X,Y,cfit,thresh)
 %
 % Examines the size and shape, mean and standard deviation, and fits a gaussian distribution to
 % a single peak of interest. 
@@ -19,9 +19,12 @@ function varargout=examinepk(x,y,cfit,thresh)
 %
 % Last modified by pdabney@princeton.edu, 9/28/21
 
+% Gaussian Curve
+g = cfit(X);
+
 % Find peak,location, width, prominence
-[pks1,locs1,wdt1,prm1]=findpeaks(y,x,'MinPeakHeight',thresh,'WidthReference','halfheight');
-[pks2,locs2,wdt2,prm2]=findpeaks(cfit(x),x,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks1,locs1,wdt1,prm1]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks2,locs2,wdt2,prm2]=findpeaks(g,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
 
 % Find the mean and standard deviation for the Data and Gaussian distribution
 mu = [mean(Y) mean(g)]; sigma = [std(Y) std(g)];
