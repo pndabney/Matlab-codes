@@ -14,10 +14,10 @@ function [XD,YD]=inrange(x,y,xrange)
 % YD             Data array only within range of interest 
 % XD             Corresponding x-axis array within range of interest
 %
-% Last modified by pdabney@princeton.edu, 9/17/21
+% Last modified by pdabney@princeton.edu, 9/28/21
 
 % Ensure frange is increasing
-xrange = sort(xrange);
+frange = sort(xrange);
 
 % Error if the range of interest is outside data available
 if (frange(1) < x(1) || frange(2) > x(end))
