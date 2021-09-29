@@ -1,4 +1,4 @@
-function varargout=fitgauss(y,x,freq,wlen,thresh)
+function varargout=fitgauss(y,x,freq,wlen,thresh,gtype)
 % [X,Y,bnds,cfit,e,res]=fitgauss(y,x,freq,wlen,thresh)
 %
 % Fit gaussian distribution curve to single peak of interest.
@@ -12,6 +12,9 @@ function varargout=fitgauss(y,x,freq,wlen,thresh)
 % freq           Single frequencies of interest
 % wlen           Length of window
 % thresh         Minimum Peak height 
+% gtype          IF there are multiple peaks found, 
+%                0 - obtain average gaussian 
+%                1 -  obtain gassian for each peak
 %
 % Output:
 %
@@ -22,7 +25,7 @@ function varargout=fitgauss(y,x,freq,wlen,thresh)
 % e              Root mean squared error
 % res            Residuals, as vector
 %
-% Last modified by pdabney@princeton.edu, 9/16/21
+% Last modified by pdabney@princeton.edu, 9/29/21
 
 % Take half the window 
 halfwin = wlen/2;
@@ -33,26 +36,59 @@ xrange = [freq-halfwin freq+halfwin];
 [X,Y,bnds] = inrange(x,y,xrange);
 
 % Need to obtain the full width at half maximum 
-[~,~,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
+[pks,locs,wdt,~]=findpeaks(Y,X,'MinPeakHeight',thresh,'WidthReference','halfheight');
 
-% Can only imput one width as a starting point, thus must have only a single peak.
-if wdt > 1
-    error('Must obtain a single peak.')
-end
-
-% Choose starting points for fit
-[i,j]=max(Y);
+N = length(pks);
+% Choose fittype to be a gaussian
 gmodel = fittype('a1*exp(-((x-b1)/c1)^2)');
-[cfit,gof,output] = fit(X,Y,gmodel,'StartPoint',[i X(j) wdt]);
 
-% Residuals
-res = output.residuals;
-% Root mean square error
-e = gof.rmse;
+
+% If there is only one peak
+if N == 1
+    % Choose starting points for fit
+    [i,j]=max(Y);
+    % Creates a curve fitting object used to plot and evaluate the fit
+    [cfit,gof,output] = fit(X,Y,gmodel,'StartPoint',[i X(j) wdt]);
+
+    % Residuals
+    res = output.residuals;
+    % Root mean square error
+    e = gof.rmse;
+
+% If there is more than one peak
+elseif N > 1
+    
+    % Take the average of the peaks
+    if gtype == 0
+        % Choose starting points for fit
+        w = sum(wdt)/N;
+        l = sum(locs)/N;
+        p = sum(pks)/N;
+        % Creates a curve fitting object used to plot and evaluate the fit
+        [cfit,gof,output] = fit(X,Y,gmodel,'StartPoint',[p l w]);
+        
+        % Residuals
+        res = output.residuals;
+        % Root mean square error
+        e = gof.rmse;
+       
+    % Fit a gaussian curve to each peak
+    elseif gtype == 1
+        for k = 1:N
+            [cfit_i,gof,output] = fit(X,Y,gmodel,'StartPoint',[pks(k) locs(k) wdt(k)]);
+            cfit{k} = cfit_i;
+           
+            % Residuals
+            res{k} = output.residuals;
+            % Root mean square error
+            e{k} = gof.rmse;
+        end
+    end
+    
+end
 
 % Optional Output
 vars={X,Y,bnds,cfit,e,res};
 varargout=vars(1:nargout);
 
 end
-
