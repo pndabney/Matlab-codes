@@ -101,7 +101,7 @@ pmis = ((N-sum(abs(~isnan(SData))))/N) * 100;
 
 % Determine actual number of gaps create (needed if threshold is implemented)
 gind = find(isnan(SData));
-[gc,kin] = increasing(gind);
+[gc,kin] = isincreasing(gind);
 Ng = length(gc);
 
 
