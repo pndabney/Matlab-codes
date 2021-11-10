@@ -23,19 +23,28 @@ diffval = diff(x);
 % Find the indexes to all the negative values
 negind = find(diffval < 0);
 
-% Find the indexes where is changes from negative to positive values
-[C,K]=isincreasing(negind);
-
-% Find local minimum closest to the peak
-if length(K) == 1
-    index = negind(K);
-else
+if isempty(negind) == 1
     if ws == 1
-        index = negind(K(end))+1;
-    elseif ws == 2
-        index = negind(K(1));
+        index = 1;
+    elseif ws ==2
+        index = length(x);
+    end
+else
+    % Find the indexes where is changes from negative to positive values
+    [C,K]=isincreasing(negind);
+
+    % Find local minimum closest to the peak
+    if length(K) == 1
+        index = negind(K);
+    else
+        if ws == 1
+            index = negind(K(end))+1;
+        elseif ws == 2
+            index = negind(K(1));
+        end
     end
 end
+
 % Local minima value
 locmin = x(index);
 
