@@ -1,7 +1,7 @@
 function varargout=makegaps(sd,tim,dt,num,d,thresh)
 % [CD,pmis,Ng,lplot,SData]=MAKEGAPS(sd,tim,dt,num,d,thresh)
 %
-% Takes a time series and creates synthetic gaps
+% Takes a time series and creates synthetic gaps.
 %
 % INPUT:
 %
@@ -31,9 +31,10 @@ function varargout=makegaps(sd,tim,dt,num,d,thresh)
 % EXAMPLE:
 %
 % sd = ones(1,2048); tim = 1:2048; dt=1;  num = randi(10); d = 'rgaps';
-% [CD,pmis,Ns,Ng,T,mu,M,lplot,SData]=makegaps(sd,tim,dt,num,d);
+% [CD,pmis,Ng,lplot,SData]=makegaps(sd,tim,dt,num,d);
 %
-% Last modified by pdabney@princeton.edu 09/24/21
+% Last modified by pdabney@princeton.edu 11/09/21
+%-------------------------------------------------------------------------------
 
 N=length(sd);
 
@@ -55,49 +56,59 @@ end
 
 % Create gaps by replacing segments of data with NaN
 SData = sd; SData(matranges(ng))=NaN;
+
 % Find indexes of data
 nsd = find(~isnan(SData));
+
 % Creates a cell array of the INDEXES of the data segments
 [C,K]=isincreasing(nsd);
 
+
+%-------------------------------------------------------------------------------
 % Optional threshold
 switch nargin
-    case 8
+    case 6
       % Ensure segments are longer than thresh
       clen=cellfun(@length,C);
       K=find(clen < thresh);
       C(K)=[];
-    case 7
+      
+      % Rerun code if cell array is empty
+      if isempty(C) == 1
+          [CD,pmis,Ng,lplot,SData]=makegaps(sd,tim,dt,num,d,thresh);
+      end
+    case 5
       % do nothing
 end
-% Rerun code if cell array is empty
-if isempty(C) == 1
-    [CD,pmis,Ns,Ng,T,mu,M,lplot,SData]=mgaps_m1(sd,tim,dt,num,d,p,units,thresh);
-end
 
-%--------------------------------------------------------------
+
+%-------------------------------------------------------------------------------
 % Create a cell array for each to be filled with the data of each section
 l = ones(length(SData),1); lplot=l;
 for i = 1:length(C)
     l(C{i})=NaN; % needed to update array if threshold was used
     CD{i} = sd(C{i}); % fill cell with data
 end
+
 % Update arrays used for plotting
-% Fills nonNaN with NaN because l originally filled sections of data with NaN
-% Now the data segments in CD correspond to SData segments
 j = find(~isnan(l));
 SData(j)=NaN;
 lplot(j)=NaN;
 
-%--------------------------------------------------------------
+
 % Calculate the percent of data missing
 pmis = ((N-sum(abs(~isnan(SData))))/N) * 100; 
-% Number of gaps
-Ng = length(ng)/2;
+
+% Determine actual number of gaps create (needed if threshold is implemented)
+gind = find(isnan(SData));
+[gc,kin] = increasing(gind);
+Ng = length(gc);
+
 
 %--------------------------------------------------------------
 % Optional output
 varns={CD,pmis,Ng,lplot,SData};
 varargout=varns(1:nargout);
+
 end
 
