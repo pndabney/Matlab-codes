@@ -1,5 +1,5 @@
 function varargout=bglitch(sd,t,num,d,amp,p)
-% [GD]=BGLITCH(sd,num,d,amp,p)
+% [GD,loc]=BGLITCH(sd,t,num,d,amp,p)
 %
 % Takes in a time series and creates synthetic glitches
 %
@@ -19,13 +19,14 @@ function varargout=bglitch(sd,t,num,d,amp,p)
 % OUTPUT:
 %
 % GD               New glitched data array
-%
+% loc              Array of glitch locations
+% 
 % EXAMPLE:
 % 
 % sd=rand(1,1028); t=1:1048; num=randi(25); d='rando'; amp=randi([-10 10],1,num); p=1;
-% [GD]=bglitch(sd,t,num,d,amp,p);
+% [GD,loc]=bglitch(sd,t,num,d,amp,p);
 %
-% Last modified by pdabney@princeton.edu 08/17/21
+% Last modified by pdabney@princeton.edu 12/06/21
 
 % Factor to multiply by for text position
 tp = 0.88;
@@ -44,17 +45,15 @@ if length(amp) == num
 else
     warning('Length of amplitude array must equal number of glitches.')
 end
-
-% Optional figure
 if p == 1
-    %figure(clf)
+    figure
     subplot(2,1,1)
-    plot(sd)
+    plot(t,sd)
     xlim([1 length(sd)]); xlabel('Time (s)')
     title('Original Time Series')
     subplot(2,1,2)
-    plot(GD); box on;
-    xlim([1 length(sd)]); ylim([-(max(abs(amp))+2) (max(abs(amp))+2)]);
+    plot(t,GD); box on;
+    xlim([1 length(sd)]);
     xlabel('Time (s)')
     xL=xlim; yL=ylim;
     text(tp*xL(2),tp*yL(2),sprintf('N = %.f',num))
@@ -62,7 +61,7 @@ if p == 1
 end
 
 % Optional output
-varns={GD};
+varns={GD,loc};
 varargout=varns(1:nargout);
 end
 
