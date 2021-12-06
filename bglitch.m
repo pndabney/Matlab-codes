@@ -1,5 +1,5 @@
-function varargout=bglitch(sd,t,num,d,amp,p)
-% [GD,loc]=BGLITCH(sd,t,num,d,amp,p)
+function varargout=bglitch(sd,t,num,d,amp,method,p)
+% [GD,loc]=BGLITCH(sd,t,num,d,amp,method,p)
 %
 % Takes in a time series and creates synthetic glitches
 %
@@ -13,6 +13,9 @@ function varargout=bglitch(sd,t,num,d,amp,p)
 %                  'eveno' evenly distributed gaps
 % amp              Array for the amplitude of glitches 
 %                  (Number of amplitudes must be equal to number of glitches)
+% method           Method of creating glitches: "add" or "replace"
+%                  "add" - Adds inputed glitch amplitude to existing data
+%                  "replace" - Replaces data point with glitch
 % p                1 makes a plot
 %                  0 does not make a plot
 %
@@ -34,14 +37,19 @@ tp = 0.88;
 % Must ensure the number glitches corresponds to number of amplitudes
 if length(amp) == num
     % Choose distribution and location of gaps in the time series
-    if isstr(d) & d=='rando'
+    if d ==  'rando'
         loc = sort(randi([1 length(sd)],1,num));
-    elseif isstr(d) & d=='eveno'
+    elseif d == 'eveno'
         loc = round(linspace(1,length(sd),num));
     end
-    % Add glitches into the data
     GD = sd(:);
-    GD(loc) = GD(loc) + amp(:);
+    if method == "add"
+        % Add glitches into the data
+        GD(loc) = GD(loc) + amp(:);
+    elseif method == "replace"
+        % Replace data points with glitches
+        GD(loc) = amp(:);
+    end
 else
     warning('Length of amplitude array must equal number of glitches.')
 end
@@ -64,4 +72,6 @@ end
 varns={GD,loc};
 varargout=varns(1:nargout);
 end
+
+
 
