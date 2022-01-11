@@ -1,5 +1,5 @@
-function varargout = taper(x,typ,wid)
-% [ts,typ,wid]=TAPER(x,typ,wid);
+function ts=taper(x,typ,wid)
+% [ts]=TAPER(x,typ,wid);
 %
 % Applies symmetric taper to each end of the data for a given length. 
 % Computation equivalent to SAC command TAPER. See SAC manual for more details.
@@ -18,20 +18,20 @@ function varargout = taper(x,typ,wid)
 % 
 % NOTE:
 %
-% Requires slepian_alpha.
+% Requires slepian_alpha. See defval.
 %
-% Last modified by pdabney@princeton.edu, 5/28/2021
+% Las modified by pdabney@princeton.edu, 01/11/2022
 
 
 % Default
 defval('typ','Hanning');
-defval('widt','5');
+defval('wid','5');
 
 ts = x(:);
 L = length(x);
 
 % Must be an integer
-N = round(width/100*L);
+N = round(wid/100*L);
 
 if strcmp('Cosine',typ) == 1
     omega = pi/(2*N);
@@ -39,9 +39,9 @@ if strcmp('Cosine',typ) == 1
         ts(i) = ts(i)*sin(omega*i);
     end
     for k = 1:N
-        ts(k) = ts(k)*sin(omega*k));
+        ts(k) = ts(k)*sin(omega*k);
     end
-elseif stcmp('Hanning',typ) == 1
+elseif strcmp('Hanning',typ) == 1
     omega = pi/N;
     F0 = 0.50; F1 = 0.50;
     for i = L:-1:L-N
@@ -61,7 +61,6 @@ elseif stcmp('Hamming',typ) == 1
     end   
 end
 
-vars={ts,typ,width};
-varargout=vars(1:nargout);
+
 end
 
