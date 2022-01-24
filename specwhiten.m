@@ -1,53 +1,39 @@
-function varargout=specwhiten(ts,fhandle,winopt)
-% [wts]=SPECWHITEN(ts)
+function varargout=specwhiten(ts,mtype, window)
+% [wts]=SPECWHITEN(ts,mtype,window)
 %
-% Flattens the time series by applying a specified window and Fourier transforming the 
-% signal and normalizing by the amplitude spectrum, and then inverse Fourier
-%  transforming it.
+% Whitens a time series by normalizing the spectrum by the magnitude of the amplitude
+% spectrum. Options include a 'smooth' or 'unsmooth' magnitude.
+% 
 %
 % Input:
 %
 % ts            Time series data (1-D array)
-% fhandle       Name of window function preceded by an @
-%               (default: @hann)
-% winopt        Window options (include a window parameter)
-%               (See mathworks for window options for specified window)
+% mtype         Magnitude type: 0 unsmoothed, 1 smoothed
+% window        Window length for moving average (required if mtype = 1)
 %
 % Output:
 %
 % wts           Whitened time series
 %
-% Last modified by pdabney@princeton.edu, 5/21/21
-
+% Last modified by pdabney@princeton.edu, 01/24/22
 
 
 % Default value
-defval('fhandle', '@hann');
-
-% Get number of array elements
-L = numel(ts);
-
-
-switch nargin
-  case 2
-    % Specify the window
-    w = window(fhandle,L);
-    
-  case 3 
-    % Specify the window
-    w = window(fhandle,L,winopt);
-
-  otherwise
-end
+defval('mtype', 1)
 
 % Take the fft
-tsfft = fft(w.*ts,L);
+tsfft = fft(ts);
 
 % Obtain the magnitude
-magn = abs(tsfft);
+switch nargin
+  case 2
+    mag = movmean(abs(tsfft),window);
+  case 1
+    mag = abs(tsfft);
+end
 
 % Divide by amplitude spectrum and return to time domain
-wts = ifft(tsfft./magn);
+wts = real(ifft(tsfft./mag));
 
 % Provide output
 vars={wts};
