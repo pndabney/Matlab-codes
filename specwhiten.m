@@ -15,7 +15,7 @@ function varargout=specwhiten(ts,mtype, window)
 %
 % wts           Whitened time series
 %
-% Last modified by pdabney@princeton.edu, 01/24/22
+% Last modified by pdabney@princeton.edu, 01/25/22
 
 
 % Default value
@@ -26,9 +26,9 @@ tsfft = fft(ts);
 
 % Obtain the magnitude
 switch nargin
-  case 2
+  case 3
     mag = movmean(abs(tsfft),window);
-  case 1
+  case 2
     mag = abs(tsfft);
 end
 
