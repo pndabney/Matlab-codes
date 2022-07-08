@@ -28,7 +28,7 @@ end
 
 if isempty(K) == 1
     C = NaN;
-    K = x(end);
+    K = length(x);
 else
     % Divide segments into cells
     % Deal with the first 
