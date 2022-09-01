@@ -8,7 +8,7 @@ function [ts]=RAMnorm(wdata,data, wlen, Fs)
 %
 % wdata       Data array to compute the weights (1-D)     
 % data        Data array to apply weights (1-D)
-% wlen        Window length (in samples)
+% wlen        Window length (in seconds)
 % Fs          Sample rate (Hz)
 %
 % Output:
@@ -18,7 +18,7 @@ function [ts]=RAMnorm(wdata,data, wlen, Fs)
 % Last modified by pdabney@princeton.edu, 01/26/22
 
 % Window length
-lwin = round(Fs*wlen);
+lwin = round(wlen*Fs);
 % Number of points
 npts = length(data);
 
@@ -42,5 +42,6 @@ end
 
 % Apply taper
 [~,ts]=taper(length(xout),'Hanning',2,xout);
+
 
 end
